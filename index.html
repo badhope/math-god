@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数学修仙传 | Mathematics Cultivation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @layer base {
+            :root {
+                --primary: #1e3a8a;
+                --secondary: #f59e0b;
+                --accent: #dc2626;
+                --dark: #0f172a;
+                --light: #f8fafc;
+            }
+            body {
+                font-family: 'Noto Serif SC', serif;
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+            .cultivation-font {
+                font-family: 'Ma Shan Zheng', cursive;
+            }
+        }
+        @layer components {
+            .realm-card {
+                background: rgba(30, 41, 59, 0.8);
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(245, 158, 11, 0.3);
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+            }
+            .realm-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.1), transparent);
+                transition: left 0.5s;
+            }
+            .realm-card:hover::before {
+                left: 100%;
+            }
+            .realm-card:hover {
+                transform: translateY(-8px);
+                border-color: rgba(245, 158, 11, 0.8);
+                box-shadow: 0 20px 40px rgba(245, 158, 11, 0.2);
+            }
+            .realm-icon {
+                background: linear-gradient(135deg, #f59e0b, #dc2626);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .particle {
+                position: fixed;
+                pointer-events: none;
+                opacity: 0.6;
+                animation: float 20s infinite linear;
+            }
+            @keyframes float {
+                0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+                10% { opacity: 0.6; }
+                90% { opacity: 0.6; }
+                100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+            }
+            .glow-text {
+                text-shadow: 0 0 20px rgba(245, 158, 11, 0.5), 0 0 40px rgba(245, 158, 11, 0.3);
+            }
+            .progress-bar {
+                background: linear-gradient(90deg, #f59e0b, #dc2626);
+                height: 4px;
+                border-radius: 2px;
+                transition: width 1s ease-out;
+            }
+            .formula-box {
+                background: rgba(15, 23, 42, 0.6);
+                border-left: 3px solid #f59e0b;
+                font-family: 'Courier New', monospace;
+            }
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
+                z-index: 1000;
+                backdrop-filter: blur(8px);
+            }
+            .modal.active {
+                display: flex;
+                animation: fadeIn 0.3s ease-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            .modal-content {
+                animation: slideUp 0.4s ease-out;
+            }
+            @keyframes slideUp {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            .tag {
+                background: rgba(245, 158, 11, 0.15);
+                border: 1px solid rgba(245, 158, 11, 0.3);
+                transition: all 0.3s;
+            }
+            .tag:hover {
+                background: rgba(245, 158, 11, 0.3);
+                transform: scale(1.05);
+            }
+            .realm-1 { border-top: 3px solid #22d3ee; }
+            .realm-2 { border-top: 3px solid #34d399; }
+            .realm-3 { border-top: 3px solid #a78bfa; }
+            .realm-4 { border-top: 3px solid #fbbf24; }
+            .realm-5 { border-top: 3px solid #f87171; }
+            .realm-6 { border-top: 3px solid #c084fc; }
+            .realm-7 { border-top: 3px solid #ef4444; }
+            .realm-8 { border-top: 3px solid #f59e0b; }
+            .realm-9 { border-top: 3px solid #e879f9; }
+        }
+    </style>
+</head>
+<body class="text-slate-200">
+    <!-- 背景粒子效果 -->
+    <div id="particles"></div>
+
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 w-full bg-slate-900/90 backdrop-blur-md border-b border-amber-500/20 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-xl cultivation-font">数</div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-red-500 bg-clip-text text-transparent cultivation-font tracking-wider">数学修仙传</h1>
+            </div>
+            <div class="hidden md:flex gap-6 text-sm">
+                <a href="#realms" class="hover:text-amber-400 transition-colors">境界体系</a>
+                <a href="#about" class="hover:text-amber-400 transition-colors">关于本站</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区 -->
+    <header class="relative min-h-screen flex items-center justify-center pt-20 px-6 overflow-hidden">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23f59e0b%22 fill-opacity=%220.05%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        
+        <div class="text-center max-w-4xl z-10">
+            <div class="mb-6 inline-block">
+                <span class="px-4 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm tracking-widest">天地不仁，以万物为刍狗；数学不仁，以众生为学徒</span>
+            </div>
+            <h2 class="text-5xl md:text-7xl font-black mb-6 leading-tight glow-text cultivation-font">
+                问道数学<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-red-500 to-purple-600">九重天</span>
+            </h2>
+            <p class="text-xl md:text-2xl text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+                从加减乘除的练气期，到朗兰兹纲领的渡劫期。<br>
+                每一个公式都是心法，每一次证明都是突破。
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="scrollToRealms()" class="px-8 py-4 bg-gradient-to-r from-amber-500 to-red-600 rounded-lg font-bold text-white hover:shadow-lg hover:shadow-amber-500/30 transition-all transform hover:scale-105">
+                    开始修炼
+                </button>
+                <button onclick="document.getElementById('about-modal').classList.add('active')" class="px-8 py-4 border border-amber-500/50 rounded-lg font-bold text-amber-400 hover:bg-amber-500/10 transition-all">
+                    阅读心法
+                </button>
+            </div>
+        </div>
+
+        <!-- 装饰性元素 -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- 境界体系 -->
+    <section id="realms" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h3 class="text-4xl font-bold mb-4 cultivation-font text-amber-400">九大境界</h3>
+                <p class="text-slate-400">数学之道，循序渐进，不可僭越</p>
+                <div class="w-24 h-1 bg-gradient-to-r from-amber-500 to-red-600 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="realm-grid">
+                <!-- 境界卡片将通过JS生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 修炼统计 -->
+    <section class="py-20 px-6 bg-slate-900/50">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-amber-400 mb-2" id="stat-realms">9</div>
+                    <div class="text-slate-400">大境界</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-amber-400 mb-2" id="stat-concepts">108</div>
+                    <div class="text-slate-400">核心心法</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-amber-400 mb-2" id="stat-formulas">∞</div>
+                    <div class="text-slate-400">神通公式</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-amber-400 mb-2" id="stat-difficulty">∞</div>
+                    <div class="text-slate-400">悟道难度</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-12 px-6 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-slate-500 mb-4">数学修仙传 | Mathematics Cultivation</p>
+            <p class="text-slate-600 text-sm">愿每一位求道者都能在逻辑的海洋中，找到属于自己的大道</p>
+        </div>
+    </footer>
+
+    <!-- 详情模态框 -->
+    <div id="realm-modal" class="modal items-center justify-center p-4">
+        <div class="modal-content bg-slate-900 border border-amber-500/30 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <div id="modal-body" class="p-8">
+                <!-- 动态内容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 关于模态框 -->
+    <div id="about-modal" class="modal items-center justify-center p-4">
+        <div class="modal-content bg-slate-900 border border-amber-500/30 rounded-2xl max-w-2xl w-full relative">
+            <button onclick="document.getElementById('about-modal').classList.remove('active')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <div class="p-8">
+                <h3 class="text-3xl font-bold mb-6 text-amber-400 cultivation-font">关于数学修仙</h3>
+                <div class="prose prose-invert max-w-none">
+                    <p class="text-slate-300 mb-4 leading-relaxed">
+                        数学，乃宇宙之根本法则。从远古结绳记事，到现代量子计算，数学始终是人类认知世界的最强法器。
+                    </p>
+                    <p class="text-slate-300 mb-4 leading-relaxed">
+                        本站以修仙之喻，解构数学之体系。练气期修士掌握算术，筑基期领悟代数，金丹期参透几何...直至渡劫期，直面数学终极之谜。
+                    </p>
+                    <p class="text-slate-300 mb-6 leading-relaxed">
+                        每一境界不仅代表知识难度，更象征思维方式的跃迁。正如修仙者需渡雷劫，数学学习者亦需突破认知瓶颈，方能更上一层楼。
+                    </p>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-amber-500">
+                        <p class="text-amber-400 italic">"给我五个系数，我将画出一头大象；给我六个系数，大象将会摇动尾巴。"</p>
+                        <p class="text-slate-500 text-sm mt-2">—— 雅可比（Jacobi）</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 境界数据
+        const realms = [
+            {
+                id: 1,
+                name: "练气期",
+                subtitle: "Arithmetic Foundation",
+                color: "cyan",
+                description: "初窥门径，掌握基础运算。此乃数学修仙之根基，万丈高楼平地起。",
+                concepts: ["自然数与整数", "四则运算", "分数与小数", "质数与合数", "最大公约数", "最小公倍数"],
+                formulas: [
+                    { name: "等差数列求和", formula: "S_n = n(a_1 + a_n)/2" },
+                    { name: "辗转相除法", formula: "gcd(a,b) = gcd(b, a mod b)" }
+                ],
+                difficulty: 10,
+                keywork: "熟练计算，培养数感",
+                next: "筑基期"
+            },
+            {
+                id: 2,
+                name: "筑基期",
+                subtitle: "Elementary Algebra",
+                color: "emerald",
+                description: "以符号代万物，建立抽象思维。从此脱离具体数字，进入变量之域。",
+                concepts: ["一元一次方程", "二元一次方程组", "多项式运算", "因式分解", "分式方程", "根式运算"],
+                formulas: [
+                    { name: "求根公式", formula: "x = (-b ± √(b²-4ac))/2a" },
+                    { name: "平方差公式", formula: "a² - b² = (a+b)(a-b)" }
+                ],
+                difficulty: 25,
+                keywork: "建立代数直觉",
+                next: "金丹期"
+            },
+            {
+                id: 3,
+                name: "金丹期",
+                subtitle: "Euclidean Geometry",
+                color: "violet",
+                description: "参透空间奥秘，领悟形之大道。点线面体，勾股定理，圆之完美。",
+                concepts: ["平面几何", "三角形全等与相似", "圆的性质", "勾股定理", "三角函数初步", "立体几何基础"],
+                formulas: [
+                    { name: "勾股定理", formula: "a² + b² = c²" },
+                    { name: "正弦定理", formula: "a/sinA = b/sinB = c/sinC = 2R" }
+                ],
+                difficulty: 40,
+                keywork: "培养空间想象",
+                next: "元婴期"
+            },
+            {
+                id: 4,
+                name: "元婴期",
+                subtitle: "Advanced Algebra & Functions",
+                color: "amber",
+                description: "函数之变，映射天地。幂指对三角，数列极限，初窥分析之门。",
+                concepts: ["函数概念", "指数与对数函数", "三角函数", "数列与数学归纳法", "不等式", "复数初步"],
+                formulas: [
+                    { name: "欧拉公式", formula: "e^(iπ) + 1 = 0" },
+                    { name: "等比数列求和", formula: "S_n = a_1(1-q^n)/(1-q)" }
+                ],
+                difficulty: 55,
+                keywork: "理解映射与变换",
+                next: "化神期"
+            },
+            {
+                id: 5,
+                name: "化神期",
+                subtitle: "Calculus I",
+                color: "red",
+                description: "微积分之道，以无限观有限。导数察瞬时变化，积分求累积效应。",
+                concepts: ["极限理论", "导数与微分", "微分中值定理", "不定积分", "定积分", "微积分基本定理"],
+                formulas: [
+                    { name: "导数定义", formula: "f'(x) = lim_{h→0} [f(x+h)-f(x)]/h" },
+                    { name: "牛顿-莱布尼茨", formula: "∫_a^b f(x)dx = F(b) - F(a)" }
+                ],
+                difficulty: 70,
+                keywork: "掌握无穷小分析",
+                next: "炼虚期"
+            },
+            {
+                id: 6,
+                name: "炼虚期",
+                subtitle: "Calculus II & Linear Algebra",
+                color: "purple",
+                description: "多元之境，矩阵之域。向量空间，线性变换，特征之道显化。",
+                concepts: ["多元函数微分", "重积分", "曲线曲面积分", "矩阵运算", "向量空间", "特征值与特征向量"],
+                formulas: [
+                    { name: "格林公式", formula: "∮_L Pdx+Qdy = ∬_D (∂Q/∂x-∂P/∂y)dxdy" },
+                    { name: "特征方程", formula: "det(A - λI) = 0" }
+                ],
+                difficulty: 80,
+                keywork: "高维空间直觉",
+                next: "合体期"
+            },
+            {
+                id: 7,
+                name: "合体期",
+                subtitle: "Real & Complex Analysis",
+                color: "rose",
+                description: "实复交融，拓扑初现。测度论度量世界，复分析揭示深层对称。",
+                concepts: ["实数完备性", "级数理论", "傅里叶分析", "解析函数", "留数定理", "拓扑基础"],
+                formulas: [
+                    { name: "柯西积分公式", formula: "f(z_0) = (1/2πi) ∮_γ f(z)/(z-z_0) dz" },
+                    { name: "傅里叶变换", formula: "f̂(ξ) = ∫_{-∞}^∞ f(x)e^{-2πixξ} dx" }
+                ],
+                difficulty: 88,
+                keywork: "严格性思维",
+                next: "大乘期"
+            },
+            {
+                id: 8,
+                name: "大乘期",
+                subtitle: "Abstract Algebra & Topology",
+                color: "orange",
+                description: "群环域，结构之道。代数拓扑，同调同伦，范畴之眼看万物。",
+                concepts: ["群论", "环与域", "伽罗瓦理论", "代数拓扑", "微分几何", "流形理论"],
+                formulas: [
+                    { name: "欧拉示性数", formula: "χ = V - E + F" },
+                    { name: "斯托克斯定理", formula: "∫_M dω = ∫_{∂M} ω" }
+                ],
+                difficulty: 95,
+                keywork: "抽象结构洞察",
+                next: "渡劫期"
+            },
+            {
+                id: 9,
+                name: "渡劫期",
+                subtitle: "The Langlands Program",
+                color: "fuchsia",
+                description: "数学终极之问，朗兰兹纲领。数论几何分析交融，统一数学之大成。",
+                concepts: ["代数几何", "表示论", "自守形式", "椭圆曲线", "模形式", "黎曼假设"],
+                formulas: [
+                    { name: "黎曼ζ函数", formula: "ζ(s) = Σ_{n=1}^∞ 1/n^s" },
+                    { name: "谷山-志村猜想", formula: "E: y² = x³ + ax + b ↔ f(τ)" }
+                ],
+                difficulty: 100,
+                keywork: "开创全新领域",
+                next: "飞升"
+            }
+        ];
+
+        // 生成粒子背景
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const symbols = ['∫', '∑', 'π', '√', '∞', '∂', '∆', '∀', '∃', '∈'];
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle text-amber-500/20 text-2xl font-serif';
+                particle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // 生成境界卡片
+        function renderRealms() {
+            const grid = document.getElementById('realm-grid');
+            
+            realms.forEach((realm, index) => {
+                const card = document.createElement('div');
+                card.className = `realm-card realm-${realm.id} rounded-xl p-6 cursor-pointer group`;
+                card.onclick = () => openRealmModal(realm);
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-${realm.color}-400 to-${realm.color}-600 flex items-center justify-center text-white font-bold text-xl cultivation-font shadow-lg shadow-${realm.color}-500/30">
+                            ${realm.id}
+                        </div>
+                        <span class="text-xs text-slate-500 font-mono">${realm.subtitle}</span>
+                    </div>
+                    <h4 class="text-2xl font-bold mb-2 text-white group-hover:text-amber-400 transition-colors cultivation-font">${realm.name}</h4>
+                    <p class="text-slate-400 text-sm mb-4 line-clamp-2">${realm.description}</p>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-xs text-slate-500">
+                            <span>悟道难度</span>
+                            <span>${realm.difficulty}%</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-1">
+                            <div class="progress-bar" style="width: ${realm.difficulty}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        ${realm.concepts.slice(0, 3).map(c => `<span class="tag px-2 py-1 rounded text-xs text-amber-300">${c}</span>`).join('')}
+                        ${realm.concepts.length > 3 ? `<span class="tag px-2 py-1 rounded text-xs text-amber-300">+${realm.concepts.length - 3}</span>` : ''}
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-slate-700/50 flex justify-between items-center text-xs text-slate-500">
+                        <span>下一境: ${realm.next}</span>
+                        <svg class="w-4 h-4 text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // 打开境界详情
+        function openRealmModal(realm) {
+            const modal = document.getElementById('realm-modal');
+            const body = document.getElementById('modal-body');
+            
+            body.innerHTML = `
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-${realm.color}-400 to-${realm.color}-600 flex items-center justify-center text-white font-bold text-3xl cultivation-font shadow-lg shadow-${realm.color}-500/30">
+                        ${realm.id}
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-white cultivation-font">${realm.name}</h3>
+                        <p class="text-${realm.color}-400 font-mono">${realm.subtitle}</p>
+                    </div>
+                </div>
+                
+                <div class="prose prose-invert max-w-none mb-6">
+                    <p class="text-lg text-slate-300 leading-relaxed">${realm.description}</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <h4 class="text-amber-400 font-bold mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            核心心法
+                        </h4>
+                        <ul class="space-y-2">
+                            ${realm.concepts.map(c => `<li class="flex items-center gap-2 text-slate-300"><span class="w-1.5 h-1.5 bg-${realm.color}-400 rounded-full"></span>${c}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <h4 class="text-amber-400 font-bold mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            神通公式
+                        </h4>
+                        <div class="space-y-3">
+                            ${realm.formulas.map(f => `
+                                <div class="formula-box p-3 rounded">
+                                    <div class="text-xs text-slate-500 mb-1">${f.name}</div>
+                                    <div class="text-amber-300 font-mono text-sm overflow-x-auto">${f.formula}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-${realm.color}-900/30 to-slate-800/30 rounded-lg p-4 border border-${realm.color}-500/30">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-slate-500 mb-1">修炼要诀</div>
+                            <div class="text-white font-medium">${realm.keywork}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500 mb-1">突破难度</div>
+                            <div class="text-2xl font-bold text-${realm.color}-400">${realm.difficulty}%</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('realm-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function scrollToRealms() {
+            document.getElementById('realms').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // 键盘ESC关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+                document.body.style.overflow = '';
+            }
+        });
+
+        // 初始化
+        createParticles();
+        renderRealms();
+
+        // 数字增长动画
+        function animateNumbers() {
+            const stats = [
+                { id: 'stat-realms', target: 9 },
+                { id: 'stat-concepts', target: 108 },
+            ];
+            
+            stats.forEach(stat => {
+                const el = document.getElementById(stat.id);
+                let current = 0;
+                const increment = stat.target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= stat.target) {
+                        el.textContent = stat.target;
+                        clearInterval(timer);
+                    } else {
+                        el.textContent = Math.floor(current);
+                    }
+                }, 30);
+            });
+        }
+
+        // 滚动触发动画
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateNumbers();
+                    observer.disconnect();
+                }
+            });
+        });
+
+        observer.observe(document.getElementById('stat-realms'));
+    </script>
+</body>
+</html>
