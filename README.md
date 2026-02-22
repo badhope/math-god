@@ -91,7 +91,7 @@
 访问方式
  
 项目已部署至GitHub Pages，直接访问即可完整体验：
-https://xiongzecheng338.github.io/math-god/
+https://badhope.github.io/math-god/
  
 适用人群
  
@@ -115,3 +115,137 @@ https://xiongzecheng338.github.io/math-god/
 许可证
  
 本项目采用 MIT 许可证开源（可根据项目实际开源协议调整）
+
+
+
+# Math God
+# Mathematical Cultivation Legend
+
+## Project Overview
+
+📐 **Math God** is an immersive and engaging learning navigation project that deeply integrates progressive mathematics learning with the Chinese Xianxia (cultivation) system.
+
+We reconstruct the complete learning path from basic arithmetic to the cutting edge of mathematics using the classic cultivation breakthrough framework, transforming mundane mathematics learning into a cultivation journey from "Qi Condensation" to "Tribulation Transcendence and Ascension"—every formula is a cultivation technique, every proof is a breakthrough, completely eliminating the public's fear of advanced mathematics and providing clear, ritualistic, and rewarding growth guidance for all mathematics learners.
+
+---
+
+## Core Features
+
+- ✅ **Professional and Rigorous Progression System**: Nine major realms fully follow the objective laws of mathematics learning, from concrete operations to abstract thinking, from basic theory to cutting-edge interdisciplinary studies, adapting to the full-cycle growth from zero foundation to professional researchers.
+
+- ✅ **Highly Immersive Cultivation Narrative**: Borrowing the nationally recognized cultivation culture system, abstract mathematics learning is transformed into a perceptible "realm breakthrough" process, with "cultivation techniques" representing formulas and "breakthroughs" representing proofs, creating a strong sense of learning immersion.
+
+- ✅ **Clear Difficulty Grading**: Each realm is marked with an exclusive "Enlightenment Difficulty" from 10% to 100%, progressing step by step, with clear next-stage goals marked, completely solving the confusion of "don't know what to learn, don't know where I am" in mathematics learning.
+
+- ✅ **Lightweight and Burden-Free Experience**: Pure static single-page design, no registration or login required, no pop-up distractions, no complex operations. Open the website to get the complete mathematics growth path, with full terminal adaptation.
+
+---
+
+## Complete Feature Details
+
+### 1. Nine Major Realm Core Progression System (Core Function)
+
+The website builds a complete nine-realm system that conforms to mathematics learning logic, covering the full path from beginner to mathematics frontier. Each realm includes exclusive positioning, corresponding mathematics field, core learning content, enlightenment difficulty, and progression guidance, fully aligning with the project's core rule: "The Way of Mathematics, Step by Step, Cannot Be Transcended."
+
+#### Cultivation Realms and Mathematics Fields
+
+| Realm | English Correspondence | Core Positioning | Core Learning Content | Enlightenment Difficulty | Next Goal |
+|-------|----------------------|------------------|----------------------|-------------------------|-----------|
+| **Qi Condensation (练气期)** | Arithmetic Foundation | First glimpse into the path, foundation of mathematical cultivation | Natural numbers & integers, four operations, fractions & decimals | 10% | Foundation Establishment |
+| **Foundation Establishment (筑基期)** | Elementary Algebra | Symbols represent all things, entering the realm of variables | Linear equations, systems of linear equations, polynomial operations | 25% | Golden Core |
+| **Golden Core (金丹期)** | Euclidean Geometry | Penetrate the mysteries of space, comprehend the Dao of forms | Plane geometry, triangle congruence & similarity, circle properties | 40% | Nascent Soul |
+| **Nascent Soul (元婴期)** | Advanced Algebra & Functions | Transformation of functions, mapping heaven and earth, first glimpse into analysis | Function concepts, exponential & logarithmic functions, trigonometric functions | 55% | Deity Transformation |
+| **Deity Transformation (化神期)** | Calculus I | The Dao of calculus, observing the finite through the infinite | Limit theory, derivatives & differentials, mean value theorems | 70% | Void Refinement |
+| **Void Refinement (炼虚期)** | Calculus II & Linear Algebra | Realm of multiple variables, domain of matrices, manifestation of eigenvalues | Multivariable differentiation, multiple integrals, curve & surface integrals | 80% | Integration |
+| **Integration (合体期)** | Real & Complex Analysis | Reality and complexity intertwine, topology emerges, measuring the essence of the world | Completeness of real numbers, series theory, Fourier analysis | 88% | Mahayana |
+| **Mahayana (大乘期)** | Abstract Algebra & Topology | Focus on the Dao of group-ring-field structures, viewing all things through the lens of category theory | Group theory, rings & fields, Galois theory | 95% | Tribulation |
+| **Tribulation (渡劫期)** | The Langlands Program | Exploring the ultimate questions of mathematics, pursuing the grand synthesis of unified mathematics | Algebraic geometry, representation theory, automorphic forms | 100% | Ascension |
+
+---
+
+### 2. Full System Data Visualization Dashboard
+
+The website intuitively displays the core system scale of the project, strengthening the sense of ritual and goal orientation in learning. Core displayed data includes:
+
+- **9 Complete Cultivation Realms**, covering the full growth cycle of mathematics learning
+- **108 Core Cultivation Techniques** (core mathematics knowledge points)
+- **∞ Divine Power Formulas** (full mathematics field formula system)
+- **Full Path Enlightenment Difficulty Visual Tracking**
+
+---
+
+### 3. Immersive Cultivation Motivation Narrative System
+
+- **Core Theme Slogan**: "Heaven and Earth are unkind, treating all things as straw dogs; Mathematics is unkind, treating all beings as apprentices."
+- **Core Growth Logic**: From addition, subtraction, multiplication, and division in the Qi Condensation stage, to the Langlands Program in the Tribulation stage, completely connecting the full life cycle of mathematics learning.
+- **Clear Cultivation Rules**: Emphasizing "The Way of Mathematics, Step by Step, Cannot Be Transcended," guiding users to follow learning laws, solidify foundations, and refuse to skip levels.
+
+---
+
+### 4. Lightweight Learning Path Navigation
+
+- **Single-page minimalist layout**, no complex operations required, vertical scrolling to browse the complete learning path
+- **Each realm clearly marks the next stage goal**, clearly answering the core question of "what to learn after finishing this"
+- **No redundant information distractions**, core content focused, dedicated to presenting and guiding the learning path
+
+---
+
+## Design Philosophy and Details
+
+The core design of this project is **"Professional Core + Fun Shell"**, maximizing the reduction of psychological barriers to learning while ensuring the rigor of the mathematics system, while also balancing ultimate readability and atmosphere.
+
+### Content Design
+
+1. **Rigorous Mathematics Logic Foundation**: The ordering of the nine realms strictly follows the development laws and learning paths of the mathematics discipline, from elementary school arithmetic to middle school algebra and geometry, to university calculus, linear algebra, real and complex analysis, to graduate-level abstract algebra and topology, finally reaching the mathematical frontier of the Langlands Program, fully adapting to the domestic mathematics major training system, while providing a clear entry path for zero-foundation enthusiasts.
+
+2. **Ultimate Information Simplification**: Each realm retains only 4 types of core information: "Positioning + Core Content + Difficulty + Progression Goal," with no redundant content, allowing users to grasp the learning focus of each stage at a glance without being distracted by irrelevant information.
+
+3. **Strong Resonance Cultural Adaptation**: Deeply integrated with the cultivation culture system familiar to domestic users, transforming abstract learning progress into perceptible "realm improvement," transforming breakthroughs of difficulties in learning into "realm breakthroughs," using narrative logic familiar to users to reconstruct the sense of achievement in mathematics learning.
+
+### Visual and Interaction Design
+
+1. **Clear Hierarchical Flow Layout**: Using a vertical single-page flow layout, each realm is an independent functional module, with clear boundaries between modules and distinct information levels. The top-to-bottom browsing order fully corresponds to the realm progression order, conforming to users' reading habits.
+
+2. **Intuitive Difficulty Visualization Design**: Using percentage numbers to mark the "Enlightenment Difficulty" of each realm, allowing users to have an intuitive understanding of the learning gradient, reasonably plan their learning rhythm, and clearly perceive their growth progress.
+
+3. **Fusion Style of Chinese National Style and Minimalism**: The copywriting adopts the parallel and atmospheric expression of Chinese national cultivation, while the layout adopts a minimalist modern layout with no unnecessary decorative elements, ensuring both the immersion of Chinese national style and a modern reading experience, suitable for users of all ages.
+
+4. **Ultimate Lightweight Interaction Experience**: Pure static page design, fast loading speed, no registration or login operations required, no pop-ups, no ads, no paid content. Open the website to get the complete learning path, while perfectly adapting to full-terminal devices such as PC, mobile phones, and tablets.
+
+---
+
+## Access Method
+
+The project has been deployed to GitHub Pages. Access directly for full experience:
+
+**https://badhope.github.io/math-god/**
+
+---
+
+## Target Audience
+
+- **Zero-Foundation Mathematics Beginners**: Clear progression path helps you avoid detours in getting started and build a complete learning framework.
+- **Current Students (Middle School/University)**: Corresponds to in-class learning progress, clarifies extracurricular expansion directions, and synchronously improves learning sense of achievement.
+- **Mathematics Enthusiasts**: Build a complete mathematics knowledge system framework, clearly plan the growth path from beginner to impacting the mathematics frontier.
+- **Mathematics Education Workers**: Can be used as a fun teaching tool to stimulate mathematics learning interest using narrative logic familiar to students.
+
+---
+
+## Contributing
+
+Optimizations and supplements to this project are welcome. You can participate in contributions through the following methods:
+
+- Supplement detailed learning resources, cultivation technique manuals, and supporting exercises for each realm
+- Optimize interface design and interaction experience to enhance immersion
+- Improve realm expansion and content supplementation for more mathematics branches
+- Correct professional errors in content and optimize the rigor of the mathematics system
+
+---
+
+## License
+
+This project is open-sourced under the **MIT License** (can be adjusted according to the actual open-source agreement of the project).
+
+---
+
+
