@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数学修仙传 - 测试中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .test-result {
+            transition: all 0.3s ease;
+        }
+        .test-result:hover {
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        🧪 测试中心
+                    </span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="../index.html" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        返回主页
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 控制面板 -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6 animate-fade-in">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">测试控制面板</h1>
+            <div class="flex gap-4">
+                <button 
+                    id="runAllTests"
+                    class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg"
+                >
+                    🚀 运行所有测试
+                </button>
+                <button 
+                    id="clearResults"
+                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                    🗑️ 清空结果
+                </button>
+            </div>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-lg p-6 animate-fade-in">
+                <div class="text-gray-500 text-sm mb-2">总测试数</div>
+                <div id="totalCount" class="text-3xl font-bold text-blue-600">0</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6 animate-fade-in">
+                <div class="text-gray-500 text-sm mb-2">通过</div>
+                <div id="passedCount" class="text-3xl font-bold text-green-600">0</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6 animate-fade-in">
+                <div class="text-gray-500 text-sm mb-2">失败</div>
+                <div id="failedCount" class="text-3xl font-bold text-red-600">0</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6 animate-fade-in">
+                <div class="text-gray-500 text-sm mb-2">通过率</div>
+                <div id="successRate" class="text-3xl font-bold text-purple-600">0%</div>
+            </div>
+        </div>
+
+        <!-- 测试结果 -->
+        <div class="bg-white rounded-lg shadow-lg p-6 animate-fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">测试结果</h2>
+            <div id="testResults" class="space-y-4">
+                <div class="text-center text-gray-500 py-12">
+                    点击"运行所有测试"开始测试
+                </div>
+            </div>
+        </div>
+
+        <!-- 控制台输出 -->
+        <div class="bg-gray-900 rounded-lg shadow-lg p-6 mt-6">
+            <h2 class="text-xl font-bold text-white mb-4">控制台输出</h2>
+            <div id="consoleOutput" class="font-mono text-sm text-green-400 h-96 overflow-y-auto">
+                <!-- 控制台输出将显示在这里 -->
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { testRunner } from './test-framework.js';
+        import './test-helpers.js';
+
+        // 劫持控制台输出
+        const consoleOutput = document.getElementById('consoleOutput');
+        const originalLog = console.log;
+        const originalError = console.error;
+
+        function appendToConsole(text, type = 'log') {
+            const line = document.createElement('div');
+            line.className = 'mb-1';
+            
+            if (type === 'error') {
+                line.className += ' text-red-400';
+            } else if (type === 'success') {
+                line.className += ' text-green-400';
+            } else if (type === 'warning') {
+                line.className += ' text-yellow-400';
+            }
+            
+            line.textContent = text;
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            appendToConsole(args.join(' '));
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            appendToConsole(args.join(' '), 'error');
+        };
+
+        // 运行测试
+        document.getElementById('runAllTests').addEventListener('click', async () => {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="text-center text-blue-500 py-8">🔄 正在运行测试...</div>';
+            consoleOutput.innerHTML = '';
+
+            try {
+                const summary = await testRunner.run();
+                
+                // 更新统计
+                document.getElementById('totalCount').textContent = summary.total;
+                document.getElementById('passedCount').textContent = summary.passed;
+                document.getElementById('failedCount').textContent = summary.failed;
+                document.getElementById('successRate').textContent = summary.successRate + '%';
+
+                // 显示详细结果
+                displayResults(testRunner.getReport());
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                        <div class="text-red-700 font-bold">测试运行失败</div>
+                        <div class="text-red-600 text-sm mt-1">${error.message}</div>
+                    </div>
+                `;
+            }
+        });
+
+        // 清空结果
+        document.getElementById('clearResults').addEventListener('click', () => {
+            document.getElementById('testResults').innerHTML = `
+                <div class="text-center text-gray-500 py-12">
+                    点击"运行所有测试"开始测试
+                </div>
+            `;
+            document.getElementById('totalCount').textContent = '0';
+            document.getElementById('passedCount').textContent = '0';
+            document.getElementById('failedCount').textContent = '0';
+            document.getElementById('successRate').textContent = '0%';
+            consoleOutput.innerHTML = '';
+        });
+
+        // 显示详细结果
+        function displayResults(report) {
+            const resultsDiv = document.getElementById('testResults');
+            const suites = {};
+
+            // 按套件分组
+            report.results.forEach(result => {
+                if (!suites[result.suite]) {
+                    suites[result.suite] = [];
+                }
+                suites[result.suite].push(result);
+            });
+
+            let html = '';
+            for (const [suiteName, tests] of Object.entries(suites)) {
+                const passed = tests.filter(t => t.status === 'passed').length;
+                const total = tests.length;
+                
+                html += `
+                    <div class="border rounded-lg overflow-hidden mb-4">
+                        <div class="bg-gray-50 px-4 py-3 border-b">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold text-gray-800">${suiteName}</h3>
+                                <span class="text-sm ${passed === total ? 'text-green-600' : 'text-red-600'}">
+                                    ${passed}/${total} 通过
+                                </span>
+                            </div>
+                        </div>
+                        <div class="divide-y">
+                `;
+
+                tests.forEach(test => {
+                    const isSuccess = test.status === 'passed';
+                    html += `
+                        <div class="test-result px-4 py-3 flex items-start gap-3 ${isSuccess ? 'bg-green-50' : 'bg-red-50'}">
+                            <span class="text-lg">${isSuccess ? '✅' : '❌'}</span>
+                            <div class="flex-1">
+                                <div class="font-medium ${isSuccess ? 'text-gray-800' : 'text-gray-800'}">
+                                    ${test.name}
+                                </div>
+                                ${test.error ? `
+                                    <div class="text-sm text-red-600 mt-1 ml-4">
+                                        ${test.error}
+                                    </div>
+                                ` : ''}
+                                <div class="text-xs text-gray-500 mt-1 ml-4">
+                                    ${test.duration.toFixed(2)}ms
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

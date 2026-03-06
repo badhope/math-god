@@ -6,182 +6,12 @@
     <title>数学修仙传 | 动态交互版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-    <style>
-        /* --- 全局重置与基础 --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: 'Noto Serif SC', serif;
-            background: #050a14;
-            color: #e2e8f0;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* --- 动态背景画布 --- */
-        #canvas-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none; /* 默认不拦截事件，但在JS中会开启 */
-        }
-
-        /* --- 导航栏样式 --- */
-        .nav-container {
-            background: rgba(5, 10, 20, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(245, 158, 11, 0.1);
-            transition: all 0.3s;
-        }
-        .nav-item {
-            position: relative;
-            transition: all 0.3s;
-        }
-        .nav-item::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #f59e0b, transparent);
-            transition: width 0.3s;
-        }
-        .nav-item:hover::after, .nav-item.active::after {
-            width: 100%;
-        }
-
-        /* --- 页面切换动画 --- */
-        .page-section {
-            display: none;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 100vh;
-            padding-top: 80px;
-            padding-bottom: 60px;
-            position: relative;
-            z-index: 1;
-        }
-        .page-section.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* --- 卡片高级动效 --- */
-        .realm-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            transform-style: preserve-3d;
-        }
-        
-        /* 扫光效果 */
-        .realm-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 60%);
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.5s;
-            pointer-events: none;
-        }
-        
-        .realm-card:hover {
-            transform: translateY(-8px) rotateX(2deg);
-            border-color: rgba(245, 158, 11, 0.6);
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.2), inset 0 0 15px rgba(245, 158, 11, 0.05);
-        }
-        .realm-card:hover::before {
-            opacity: 1;
-            transform: scale(1.2);
-        }
-
-        /* --- 发光文字 --- */
-        .glow-text {
-            text-shadow: 0 0 10px rgba(245, 158, 11, 0.6), 0 0 30px rgba(245, 158, 11, 0.3);
-        }
-
-        /* --- 按钮 --- */
-        .btn-primary {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-            transition: all 0.3s;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
-        }
-        
-        /* 点击波纹效果 */
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            transform: scale(0);
-            animation: ripple-effect 0.6s linear;
-            pointer-events: none;
-        }
-        @keyframes ripple-effect {
-            to { transform: scale(4); opacity: 0; }
-        }
-
-        /* --- 模态框动画 --- */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        .modal.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content {
-            background: #1e293b;
-            max-width: 800px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            transform: scale(0.8);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 50px rgba(245, 158, 11, 0.1);
-        }
-        .modal.active .modal-content { transform: scale(1); }
-
-        /* --- 响应式布局 --- */
-        @media (max-width: 768px) {
-            .grid-responsive { grid-template-columns: 1fr !important; }
-            .title-main { font-size: 2.5rem; }
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="relative">
 
-    <!-- 1. 全局动态背景 -->
     <canvas id="canvas-bg"></canvas>
 
-    <!-- 2. 导航栏 -->
     <nav class="nav-container fixed top-0 left-0 right-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('home')">
@@ -189,25 +19,28 @@
                 <h1 class="text-xl font-bold text-amber-400 glow-text hidden md:block" style="font-family: 'Ma Shan Zheng', cursive;">数学修仙传</h1>
             </div>
             
-            <div class="flex gap-2 md:gap-6 text-sm items-center">
-                <button onclick="navigateTo('home')" class="nav-item active px-2 py-1 text-slate-300 hover:text-white">首页</button>
-                <button onclick="navigateTo('realms')" class="nav-item px-2 py-1 text-slate-300 hover:text-white">境界图谱</button>
-                <button onclick="navigateTo('challenge')" class="nav-item px-2 py-1 text-slate-300 hover:text-white">⚔️ 挑战</button>
-                <button onclick="navigateTo('games')" class="nav-item px-2 py-1 text-slate-300 hover:text-white">🎮 游戏</button>
-                <button onclick="navigateTo('profile')" class="nav-item px-2 py-1 text-amber-400 border border-amber-500/30 rounded-full px-3 bg-slate-900/50">
-                    Lv.<span id="nav-level">1</span>
+            <div class="flex gap-2 md:gap-3 text-sm items-center overflow-x-auto">
+                <button onclick="navigateTo('home')" class="nav-item active px-2 py-1 text-slate-300 hover:text-white whitespace-nowrap">首页</button>
+                <button onclick="navigateTo('realms')" class="nav-item px-2 py-1 text-slate-300 hover:text-white whitespace-nowrap">境界</button>
+                <button onclick="navigateTo('challenge')" class="nav-item px-2 py-1 text-slate-300 hover:text-white whitespace-nowrap">⚔️ 挑战</button>
+                <button onclick="navigateTo('games')" class="nav-item px-2 py-1 text-slate-300 hover:text-white whitespace-nowrap">🎮 游戏</button>
+                <button onclick="navigateTo('gameplay')" class="nav-item px-2 py-1 text-slate-300 hover:text-white whitespace-nowrap">🎯 玩法</button>
+                <button onclick="navigateTo('hall-of-fame')" class="nav-item px-2 py-1 text-slate-300 hover:text-white whitespace-nowrap">🏛️ 名人堂</button>
+                <button onclick="navigateTo('timeline')" class="nav-item px-2 py-1 text-slate-300 hover:text-white whitespace-nowrap">📜 历史</button>
+                <button onclick="navigateTo('profile')" class="nav-item px-2 py-1 text-amber-400 border border-amber-500/30 rounded-full px-3 bg-slate-900/50 whitespace-nowrap">
+                    <span>Lv.</span><span id="nav-level">1</span>
+                </button>
+                <button onclick="toggleDailyPanel()" class="nav-item px-2 py-1 text-cyan-400 border border-cyan-500/30 rounded-full px-3 bg-slate-900/50 hover:bg-cyan-500/10 transition-colors" title="每日任务">
+                    📋
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- 3. 主页面容器 -->
-
-    <!-- A. 首页 -->
     <div id="home" class="page-section active">
         <div class="max-w-5xl mx-auto px-4 flex flex-col items-center justify-center text-center">
             <div class="mb-4 animate-pulse">
-                <span class="px-4 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs tracking-[0.2em] uppercase">Mathematics Cultivation v3.0</span>
+                <span class="px-4 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs tracking-[0.2em] uppercase">Mathematics Cultivation v4.0</span>
             </div>
             
             <h1 class="title-main text-5xl md:text-7xl font-black mb-4 leading-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-red-500 glow-text" style="font-family: 'Ma Shan Zheng', cursive;">
@@ -228,7 +61,6 @@
                 </button>
             </div>
 
-            <!-- 统计数字滚动 -->
             <div class="w-full grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-12">
                 <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-amber-500/30 transition-colors">
                     <div class="text-3xl font-bold text-amber-400" id="stat-realms">0</div>
@@ -248,7 +80,6 @@
                 </div>
             </div>
 
-            <!-- 核心特色 -->
             <div class="w-full grid grid-responsive md:grid-cols-3 gap-4 text-left">
                 <div class="bg-slate-900/50 p-6 rounded-xl border-l-4 border-cyan-500 hover:bg-slate-800/50 transition-all hover:scale-[1.02] cursor-pointer">
                     <h3 class="text-cyan-400 font-bold mb-2 flex items-center gap-2">📚 开放知识库</h3>
@@ -266,7 +97,6 @@
         </div>
     </div>
 
-    <!-- B. 境界图谱 -->
     <div id="realms" class="page-section">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-12">
@@ -274,13 +104,10 @@
                 <p class="text-slate-400">点击卡片查看详细心法，内容全开放</p>
             </div>
             
-            <div id="realm-container" class="grid grid-responsive md:grid-cols-3 gap-6">
-                <!-- JS生成 -->
-            </div>
+            <div id="realm-container" class="grid grid-responsive md:grid-cols-3 gap-6"></div>
         </div>
     </div>
 
-    <!-- C. 挑战模式 -->
     <div id="challenge" class="page-section">
         <div class="max-w-4xl mx-auto px-4">
             <div class="text-center mb-12">
@@ -288,17 +115,14 @@
                 <p class="text-slate-400">验证你的数学水平，步步飞升</p>
                 <div class="mt-4 inline-block bg-slate-800 px-4 py-2 rounded-lg border border-amber-500/30 shadow-lg shadow-amber-500/5">
                     当前境界：<span id="current-realm-name" class="text-amber-400 font-bold">练气期</span>
-                    <span class="ml-2 text-sm text-slate-400">(修为: <span id="user-exp">0</span>)</span>
+                    <span class="ml-2 text-sm text-slate-400">(修为：<span id="user-exp">0</span>)</span>
                 </div>
             </div>
 
-            <div id="challenge-list" class="grid grid-responsive md:grid-cols-2 gap-6">
-                <!-- JS生成 -->
-            </div>
+            <div id="challenge-list" class="grid grid-responsive md:grid-cols-2 gap-6"></div>
         </div>
     </div>
 
-    <!-- D. 小游戏道场 -->
     <div id="games" class="page-section">
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center mb-12">
@@ -306,7 +130,7 @@
                 <p class="text-slate-400">寓教于乐，轻松增长修为</p>
             </div>
 
-            <div class="grid grid-responsive md:grid-cols-2 gap-6">
+            <div class="grid grid-responsive md:grid-cols-3 gap-6">
                 <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 hover:border-amber-500/50 transition-all group cursor-pointer relative overflow-hidden" onclick="startGame('puzzle')">
                     <div class="absolute top-0 left-0 w-full h-1 bg-amber-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
                     <div class="flex items-center gap-4 mb-4">
@@ -330,14 +154,24 @@
                     </div>
                     <p class="text-slate-300 text-sm mb-4">观察数列规律，预测下一个数字。</p>
                 </div>
+
+                <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 hover:border-green-500/50 transition-all group cursor-pointer relative overflow-hidden" onclick="startGame('calc')">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-green-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400 text-2xl">⚡</div>
+                        <div>
+                            <h3 class="font-bold text-lg">快速计算</h3>
+                            <p class="text-xs text-slate-400">反应挑战</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-sm mb-4">快速计算数学题，测试你的反应速度。</p>
+                </div>
             </div>
 
-            <!-- 游戏进行区 -->
             <div id="game-area" class="mt-8 hidden"></div>
         </div>
     </div>
 
-    <!-- E. 个人中心 -->
     <div id="profile" class="page-section">
         <div class="max-w-2xl mx-auto px-4">
             <div class="text-center mb-12">
@@ -360,7 +194,7 @@
                             <div id="profile-exp-bar" class="bg-gradient-to-r from-amber-500 to-red-500 h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 text-center pt-4 border-t border-slate-700">
+                    <div class="grid grid-cols-3 gap-4 text-center pt-4 border-t border-slate-700">
                         <div>
                             <div class="text-2xl font-bold text-green-400" id="stat-correct">0</div>
                             <div class="text-xs text-slate-400">挑战正确数</div>
@@ -369,13 +203,18 @@
                             <div class="text-2xl font-bold text-blue-400" id="stat-games">0</div>
                             <div class="text-xs text-slate-400">游戏场次</div>
                         </div>
+                        <div>
+                            <div class="text-2xl font-bold text-purple-400" id="stat-achievements">0</div>
+                            <div class="text-xs text-slate-400">成就数量</div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <div id="achievements-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
     </div>
 
-    <!-- 模态框 -->
     <div id="modal-detail" class="modal">
         <div class="modal-content p-6 md:p-8">
             <button onclick="closeModal('modal-detail')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl z-10">&times;</button>
@@ -389,482 +228,688 @@
         </div>
     </div>
 
-    <script>
-        // ================= 数据层 =================
-        const mathData = [
-            {
-                id: 1, name: "练气期", title: "算术与逻辑", color: "#22d3ee",
-                desc: "万丈高楼平地起。虽然只是基础算术，但其中蕴含的逻辑是数学大道的基石。",
-                concepts: ["四则运算", "数列基础", "逻辑推理", "素数判定"],
-                formulas: ["GCD(a,b) = GCD(b, a mod b)", "Sn = n(a1+an)/2"],
-                trivia: "高斯在小学时就用等差数列求和公式快速完成了1加到100的作业。"
-            },
-            {
-                id: 2, name: "筑基期", title: "高等数学", color: "#10b981",
-                desc: "踏入高等数学的门槛。微积分、线性代数、概率论是构筑现代科学的三根支柱。",
-                concepts: ["微积分基础", "极限理论", "矩阵运算", "概率分布"],
-                formulas: ["lim(x→0) sin(x)/x = 1", "∫f(x)dx = F(b)-F(a)"],
-                trivia: "牛顿和莱布尼茨在大约同一时间独立发明了微积分。"
-            },
-            {
-                id: 3, name: "金丹期", title: "线性代数与复变函数", color: "#a78bfa",
-                desc: "在多维空间中穿梭，理解矩阵的本质。复变函数揭示了实数之外的广阔天地。",
-                concepts: ["特征值/特征向量", "复平面", "柯西积分", "傅里叶变换"],
-                formulas: ["det(A - λI) = 0", "e^(iπ) + 1 = 0"],
-                trivia: "欧拉公式 e^(iπ)+1=0 被誉为数学中最美的公式。"
-            },
-            {
-                id: 4, name: "元婴期", title: "抽象代数", color: "#fbbf24",
-                desc: "不再局限于具体的数字，而是研究代数结构。群、环、域、模，这是真正的数学家语言。",
-                concepts: ["群论", "环与域", "伽罗瓦理论", "同态与同构"],
-                formulas: ["群公理 (封闭/结合/单位/逆元)", "a^n = e"],
-                trivia: "伽罗瓦在20岁时死于决斗，但他生前发展出的群论彻底改变了代数学。"
-            },
-            {
-                id: 5, name: "化神期", title: "拓扑与几何", color: "#f87171",
-                desc: "形状的本质是什么？在拓扑学家眼中，咖啡杯和甜甜圈是一样的。",
-                concepts: ["点集拓扑", "同伦与同调", "微分流形", "纤维丛"],
-                formulas: ["χ = V - E + F (欧拉示性数)", "∫M dω = ∫∂M ω"],
-                trivia: "庞加莱猜想曾困扰数学界百年。"
-            },
-            {
-                id: 6, name: "炼虚期", title: "数论与代数几何", color: "#c084fc",
-                desc: "整数最纯粹的美。椭圆曲线、模形式、代数簇，这里是现代密码学的钥匙。",
-                concepts: ["椭圆曲线", "模形式", "代数簇", "类域论"],
-                formulas: ["y² = x³ + ax + b", "L(s, χ)"],
-                trivia: "怀尔斯证明费马大定理用了长达7年的时间。"
-            },
-            {
-                id: 7, name: "合体期", title: "朗兰兹纲领", color: "#fb7185",
-                desc: "数学的大统一理论雏形。试图建立数论、代数几何与表示论之间的桥梁。",
-                concepts: ["自守表示", "Galois表示", "L-函数", "函子性"],
-                formulas: ["朗兰兹对应", "迹公式"],
-                trivia: "朗兰兹纲领被认为是21世纪最重要的数学研究方向之一。"
-            },
-            {
-                id: 8, name: "大乘期", title: "千禧年难题", color: "#eab308",
-                desc: "站在人类智慧的最前沿。P vs NP、纳维-斯托克斯方程，解开一个即可名垂青史。",
-                concepts: ["P vs NP", "Navier-Stokes", "Hodge猜想", "BSD猜想"],
-                formulas: ["P = NP ?", "Navier-Stokes 存在性与光滑性"],
-                trivia: "克雷数学研究所设立了7个千禧年大奖难题，每题悬赏100万美元。"
-            },
-            {
-                id: 9, name: "渡劫期", title: "终极之谜", color: "#ec4899",
-                desc: "数学的边界。黎曼猜想关于素数的奥秘，连续统假设关于无穷的层级。",
-                concepts: ["黎曼猜想", "连续统假设", "大基数公理", "数学基础悖论"],
-                formulas: ["ζ(s) = Σ(1/n^s)", "2^(ℵ0) = ?"],
-                trivia: "黎曼猜想至今未解，是当今纯数学领域最重要的难题。"
-            }
-        ];
+    <!-- 每日任务面板 -->
+    <div id="daily-panel" class="fixed top-20 right-4 w-80 bg-slate-800/95 backdrop-blur-lg rounded-xl border border-cyan-500/30 shadow-2xl z-[100] transform translate-x-full transition-transform duration-300">
+        <div class="p-4 border-b border-cyan-500/20 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-cyan-400">📋 每日任务</h3>
+            <button onclick="toggleDailyPanel()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+        </div>
+        <div id="daily-tasks-container" class="p-4 space-y-3 max-h-[60vh] overflow-y-auto"></div>
+        <div class="p-4 border-t border-cyan-500/20">
+            <button onclick="showCheckInModal()" class="w-full py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-bold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all">
+                📅 每日签到
+            </button>
+        </div>
+    </div>
 
-        const quizBank = [
-            { level: 1, q: "计算: 15 + 6 × 8 - 4 = ?", opts: ["59", "64", "118", "44"], ans: 0 },
-            { level: 2, q: "极限: lim (x→0) (sin x) / x = ?", opts: ["1", "0", "∞", "不存在"], ans: 0 },
-            { level: 3, q: "矩阵 [[2,0],[0,3]] 的特征值是多少？", opts: ["2和3", "0和5", "1和4", "无法确定"], ans: 0 },
-            { level: 4, q: "以下哪个集合在乘法下构成群？", opts: ["非零有理数", "所有整数", "所有自然数", "所有实数"], ans: 0 },
-            { level: 5, q: "欧拉示性数 V - E + F 对于球面等于？", opts: ["2", "0", "1", "-1"], ans: 0 },
-            { level: 6, q: "费马大定理被证明用了什么工具？", opts: ["椭圆曲线与模形式", "微积分", "欧几里得几何", "概率论"], ans: 0 },
-            { level: 7, q: "朗兰兹纲领的主要目标是连接哪两个领域？", opts: ["数论与表示论", "几何与代数", "物理与数学", "逻辑与计算"], ans: 0 },
-            { level: 8, q: "P vs NP 问题问的是什么？", opts: ["复杂问题的快速验证是否等价于快速求解", "多项式时间问题", "非确定性图灵机", "质数分布规律"], ans: 0 },
-            { level: 9, q: "黎曼猜想关于什么的核心问题？", opts: ["黎曼ζ函数零点的分布", "圆周率的尽头", "宇宙的形状", "时间旅行"], ans: 0 }
-        ];
+    <!-- 名人事迹页面 -->
+    <div id="stories" class="page-section">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-amber-400 mb-2 glow-text" style="font-family: 'Ma Shan Zheng', cursive;">📖 先贤事迹</h2>
+                <p class="text-slate-400">追寻数学先贤的足迹，感悟智慧人生</p>
+            </div>
+            <div id="mathematicians-container" class="grid grid-responsive md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
 
-        let userState = {
-            exp: 0,
-            level: 1,
-            unlockedLevels: [1],
-            correctCount: 0,
-            gamesPlayed: 0
+    <!-- 社交排行榜页面 -->
+    <div id="social" class="page-section">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-amber-400 mb-2 glow-text" style="font-family: 'Ma Shan Zheng', cursive;">🏆 修仙排行榜</h2>
+                <p class="text-slate-400">看看谁是最强数学修士</p>
+            </div>
+            <div id="leaderboard-container" class="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden mb-8"></div>
+            
+            <!-- 趣味知识区 -->
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl p-6 border border-purple-500/30">
+                <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+                    💡 趣味数学
+                </h3>
+                <div id="fun-fact-display" class="text-slate-300 leading-relaxed"></div>
+                <button onclick="refreshFunFact()" class="mt-4 px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg text-purple-300 hover:bg-purple-500/30 transition-colors">
+                    🔄 换一个
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 签到模态框 -->
+    <div id="modal-checkin" class="modal">
+        <div class="modal-content p-6 md:p-8 max-w-2xl">
+            <button onclick="closeModal('modal-checkin')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl z-10">&times;</button>
+            <div id="checkin-body"></div>
+        </div>
+    </div>
+
+    <!-- 数学家详情模态框 -->
+    <div id="modal-mathematician" class="modal">
+        <div class="modal-content p-6 md:p-8 max-w-3xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal-mathematician')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl z-10">&times;</button>
+            <div id="mathematician-detail-body"></div>
+        </div>
+    </div>
+
+    <!-- 创新玩法页面 -->
+    <div id="gameplay" class="page-section">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-amber-400 mb-2 glow-text" style="font-family: 'Ma Shan Zheng', cursive;">🎯 创新玩法</h2>
+                <p class="text-slate-400">多样化游戏模式，让数学更有趣</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div id="tower-defense-game"></div>
+                <div id="formula-battle-game"></div>
+            </div>
+            
+            <div class="max-w-2xl mx-auto">
+                <div id="quiz-competition-game"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 名人堂页面 -->
+    <div id="hall-of-fame" class="page-section">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-amber-400 mb-2 glow-text" style="font-family: 'Ma Shan Zheng', cursive;">🏛️ 数学名人堂</h2>
+                <p class="text-slate-400">追寻先贤足迹，感悟智慧人生</p>
+            </div>
+            
+            <!-- 搜索和筛选 -->
+            <div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-700">
+                <div class="flex flex-wrap gap-4">
+                    <input type="text" id="hof-search" placeholder="搜索数学家..." 
+                           class="flex-1 min-w-[200px] p-2 bg-slate-900 rounded-lg border border-slate-600 focus:border-amber-500 focus:outline-none text-slate-200"
+                           oninput="window.hallOfFame.search(this.value)">
+                    <select id="hof-category" onchange="window.hallOfFame.filterByCategory(this.value)"
+                            class="p-2 bg-slate-900 rounded-lg border border-slate-600 focus:border-amber-500 focus:outline-none text-slate-200">
+                        <option value="">全部类别</option>
+                        <option value="数学家">数学家</option>
+                    </select>
+                    <select id="hof-difficulty" onchange="window.hallOfFame.filterByDifficulty(this.value)"
+                            class="p-2 bg-slate-900 rounded-lg border border-slate-600 focus:border-amber-500 focus:outline-none text-slate-200">
+                        <option value="">全部难度</option>
+                        <option value="1">⭐ 入门</option>
+                        <option value="2">⭐⭐ 基础</option>
+                        <option value="3">⭐⭐⭐ 进阶</option>
+                        <option value="4">⭐⭐⭐⭐ 高阶</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 专家</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 推荐区域 -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-cyan-400 mb-4">✨ 为你推荐</h3>
+                <div id="hof-recommendations" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            </div>
+            
+            <!-- 名人列表 -->
+            <div id="hof-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <!-- 历史时间线页面 -->
+    <div id="timeline" class="page-section">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-amber-400 mb-2 glow-text" style="font-family: 'Ma Shan Zheng', cursive;">📜 数学历史大事件</h2>
+                <p class="text-slate-400">穿越时空，见证数学发展的关键时刻</p>
+            </div>
+            
+            <!-- 筛选器 -->
+            <div class="bg-slate-800/50 rounded-xl p-4 mb-8 border border-slate-700">
+                <div class="flex flex-wrap gap-4">
+                    <input type="text" id="timeline-search" placeholder="搜索历史事件..." 
+                           class="flex-1 min-w-[200px] p-2 bg-slate-900 rounded-lg border border-slate-600 focus:border-amber-500 focus:outline-none text-slate-200"
+                           oninput="window.timeline.search(this.value)">
+                    <select id="timeline-era" onchange="window.timeline.filterByEra(this.value)"
+                            class="p-2 bg-slate-900 rounded-lg border border-slate-600 focus:border-amber-500 focus:outline-none text-slate-200">
+                        <option value="">全部时代</option>
+                        <option value="古代">古代</option>
+                        <option value="近代">近代</option>
+                        <option value="现代">现代</option>
+                    </select>
+                    <select id="timeline-category" onchange="window.timeline.filterByCategory(this.value)"
+                            class="p-2 bg-slate-900 rounded-lg border border-slate-600 focus:border-amber-500 focus:outline-none text-slate-200">
+                        <option value="">全部类型</option>
+                        <option value="著作">著作</option>
+                        <option value="发现">发现</option>
+                        <option value="理论">理论</option>
+                        <option value="证明">证明</option>
+                        <option value="猜想">猜想</option>
+                        <option value="发明">发明</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 时间线展示 -->
+            <div id="timeline-container" class="relative">
+                <div class="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-amber-500 via-cyan-500 to-purple-500"></div>
+                <div id="timeline-events" class="space-y-8"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initCanvas } from './js/modules/canvas.js';
+        import { renderRealms, renderChallengeList, updateProfileUI, updateCurrentRealm, animateStats, renderAchievements } from './js/modules/renderer.js';
+        import { initUserState, getUserState, getStats } from './js/modules/state.js';
+        import { navigateTo, initModals, initNavigation } from './js/modules/ui.js';
+        import { gameManager } from './js/modules/games.js';
+        import { challengeManager } from './js/modules/challenge.js';
+        import { gamificationManager, dailyTasks } from './js/modules/gamification.js';
+        import { getAllMathematicians, getMathematician, getRandomFunFact } from './js/modules/stories.js';
+        import { effectManager } from './js/modules/effects.js';
+        import { towerDefense, formulaBattle, quizCompetition } from './js/modules/gameplay.js';
+        import { hallOfFameManager, historicalEventsManager } from './js/modules/hall-of-fame.js';
+        import { contentRecommender } from './js/modules/recommender.js';
+
+        // 导出全局函数
+        window.navigateTo = navigateTo;
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
         };
-
-        // ================= 初始化 =================
-        window.onload = function() {
-            loadState();
-            initCanvas();
-            renderRealms();
+        window.showModal = (id, content) => {
+            const modal = document.getElementById(id);
+            const modalBody = document.getElementById(`${id}-body`);
+            if (modal && modalBody) {
+                modalBody.innerHTML = content;
+                modal.classList.add('active');
+            }
+        };
+        window.startGame = (type) => gameManager.startGame(type);
+        window.startQuiz = (levelId) => challengeManager.startQuiz(levelId);
+        window.gameManager = gameManager;
+        window.challengeManager = challengeManager;
+        window.userState = getUserState();
+        window.updateUI = () => {
+            updateProfileUI();
+            updateCurrentRealm();
             renderChallengeList();
-            animateStats();
-            updateUI();
+            window.userState = getUserState();
         };
 
-        // ================= 动态背景引擎 =================
-        function initCanvas() {
-            const canvas = document.getElementById('canvas-bg');
-            const ctx = canvas.getContext('2d');
-            
-            let width, height;
-            let particles = [];
-            
-            function resize() {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
+        // 每日任务面板
+        window.toggleDailyPanel = () => {
+            const panel = document.getElementById('daily-panel');
+            panel.classList.toggle('translate-x-full');
+            if (!panel.classList.contains('translate-x-full')) {
+                renderDailyTasks();
             }
-            resize();
-            window.addEventListener('resize', resize);
+        };
 
-            // 初始化粒子
-            for(let i=0; i<60; i++) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    size: Math.random() * 2 + 1,
-                    color: `rgba(${Math.random()*50+200}, ${Math.random()*50+100}, ${Math.random()*50}, ${Math.random()*0.5 + 0.2})`
-                });
-            }
-
-            function draw() {
-                ctx.clearRect(0, 0, width, height);
-                
-                // 更新粒子位置
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    // 边界反弹
-                    if(p.x < 0 || p.x > width) p.vx *= -1;
-                    if(p.y < 0 || p.y > height) p.vy *= -1;
-
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = p.color;
-                    ctx.fill();
-                });
-
-                // 绘制连线
-                ctx.strokeStyle = 'rgba(245, 158, 11, 0.05)';
-                ctx.lineWidth = 1;
-                for(let i=0; i<particles.length; i++) {
-                    for(let j=i+1; j<particles.length; j++) {
-                        const dx = particles[i].x - particles[j].x;
-                        const dy = particles[i].y - particles[j].y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        
-                        if(dist < 150) {
-                            ctx.beginPath();
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
-                        }
-                    }
-                }
-                requestAnimationFrame(draw);
-            }
-            draw();
-        }
-
-        // ================= 动画效果 =================
-        function animateStats() {
-            const targets = { 
-                'stat-realms': 9, 
-                'stat-problems': 7, // 千禧年难题
-                'stat-players': 2333 // 模拟数据
-            };
-
-            Object.keys(targets).forEach(id => {
-                const el = document.getElementById(id);
-                if(!el) return;
-                let current = 0;
-                const step = targets[id] / 50;
-                const timer = setInterval(() => {
-                    current += step;
-                    if(current >= targets[id]) {
-                        el.innerText = targets[id];
-                        clearInterval(timer);
-                    } else {
-                        el.innerText = Math.floor(current);
-                    }
-                }, 30);
-            });
-        }
-
-        // ================= 渲染函数 =================
-        function renderRealms() {
-            const container = document.getElementById('realm-container');
-            container.innerHTML = '';
+        function renderDailyTasks() {
+            const container = document.getElementById('daily-tasks-container');
+            const tasks = gamificationManager.getDailyTasks();
             
-            mathData.forEach((realm, index) => {
-                const card = document.createElement('div');
-                card.className = 'realm-card rounded-xl p-6 cursor-pointer';
-                card.style.borderLeft = `4px solid ${realm.color}`;
-                card.style.animationDelay = `${index * 0.1}s`;
-                
-                card.onclick = () => showRealmDetail(realm);
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl font-bold" style="color: ${realm.color}; font-family: 'Ma Shan Zheng', cursive;">${realm.name}</h3>
-                        <span class="text-xs bg-slate-900 px-2 py-1 rounded border border-slate-700">${realm.title}</span>
+            container.innerHTML = tasks.map(task => `
+                <div class="bg-slate-900/50 rounded-lg p-3 border ${task.completed ? 'border-green-500/50' : 'border-slate-700'}">
+                    <div class="flex items-start gap-3">
+                        <div class="text-2xl">${task.icon}</div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-sm ${task.completed ? 'text-green-400' : 'text-slate-200'}">${task.name}</span>
+                                ${task.completed ? '<span class="text-green-400 text-xs">✓</span>' : ''}
+                            </div>
+                            <div class="text-xs text-slate-400 mb-2">${task.desc}</div>
+                            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500" 
+                                     style="width: ${task.progressPercent}%"></div>
+                            </div>
+                            <div class="text-xs text-slate-500 mt-1">${task.progress}/${task.target} · 奖励：${task.reward}修为</div>
+                        </div>
                     </div>
-                    <p class="text-slate-400 text-sm mb-4 line-clamp-3 h-12">${realm.desc}</p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        ${realm.concepts.slice(0,3).map(c => `<span class="text-xs bg-slate-800/50 px-2 py-1 rounded text-slate-300 border border-slate-700">${c}</span>`).join('')}
-                    </div>
-                    <div class="text-right text-xs text-amber-500 opacity-80 hover:opacity-100 transition-opacity flex items-center justify-end gap-1">
-                        查看详情 <span>→</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+                </div>
+            `).join('');
         }
 
-        function renderChallengeList() {
-            const container = document.getElementById('challenge-list');
-            container.innerHTML = '';
+        // 签到系统
+        window.showCheckInModal = () => {
+            const status = gamificationManager.getCheckInStatus();
+            const body = document.getElementById('checkin-body');
             
-            mathData.forEach((realm) => {
-                const isUnlocked = userState.unlockedLevels.includes(realm.id);
-                const card = document.createElement('div');
-                card.className = `rounded-xl p-6 border transition-all duration-500 ${isUnlocked ? 'bg-slate-800/50 border-amber-500/30 hover:bg-slate-800' : 'bg-slate-900/50 border-slate-700 opacity-50'}`;
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-lg font-bold" style="color: ${isUnlocked ? realm.color : '#64748b'}">${realm.name} · 试炼</h3>
-                        ${!isUnlocked ? '<span class="text-xs text-red-400">🔒 需通关前一关</span>' : '<span class="text-xs text-green-400">可挑战</span>'}
-                    </div>
-                    <p class="text-slate-400 text-sm mb-4">难度: ${realm.title}</p>
-                    ${isUnlocked ? 
-                        `<button onclick="startQuiz(${realm.id})" class="w-full py-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded text-white font-bold text-sm hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95">
-                            开始挑战 (+${realm.id * 10} 修为)
-                        </button>` :
-                        `<button disabled class="w-full py-2 bg-slate-700 rounded text-slate-500 font-bold text-sm cursor-not-allowed">
-                            未解锁
-                        </button>`
-                    }
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // ================= 交互逻辑 =================
-        function navigateTo(pageId) {
-            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(pageId).classList.add('active');
-            window.scrollTo(0, 0);
-
-            const navMap = { 'home': 0, 'realms': 1, 'challenge': 2, 'games': 3 };
-            const navItems = document.querySelectorAll('.nav-item');
-            if(navMap[pageId] !== undefined && navItems[navMap[pageId]]) {
-                navItems[navMap[pageId]].classList.add('active');
-            }
-        }
-
-        function showRealmDetail(realm) {
-            const body = document.getElementById('modal-detail-body');
             body.innerHTML = `
-                <div class="border-b border-slate-700 pb-4 mb-4">
-                    <h2 class="text-3xl font-bold mb-1" style="color: ${realm.color}; font-family: 'Ma Shan Zheng', cursive;">${realm.name}</h2>
-                    <span class="text-sm text-slate-400">${realm.title}</span>
+                <div class="text-center mb-6">
+                    <h3 class="text-2xl font-bold text-cyan-400 mb-2">📅 每日签到</h3>
+                    <p class="text-slate-400">连续签到可获得丰厚奖励</p>
+                    <div class="mt-4 text-amber-400">当前连续：${status.streak} 天</div>
                 </div>
                 
-                <p class="text-slate-300 leading-relaxed mb-6 text-md">${realm.desc}</p>
+                <div class="grid grid-cols-7 gap-2 mb-6">
+                    ${status.rewards.map((reward, index) => `
+                        <div class="text-center ${index + 1 === status.streak + 1 ? 'ring-2 ring-cyan-400' : ''}">
+                            <div class="text-3xl mb-1 ${index < status.streak ? 'opacity-50' : ''}">${reward.icon}</div>
+                            <div class="text-xs text-slate-400">第${reward.day}天</div>
+                            <div class="text-xs text-amber-400">${reward.exp}修为</div>
+                        </div>
+                    `).join('')}
+                </div>
                 
-                <div class="grid md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700">
-                        <h4 class="text-amber-400 font-bold mb-3">核心心法</h4>
-                        <ul class="space-y-2">
-                            ${realm.concepts.map(c => `<li class="text-slate-300 text-sm flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>${c}</li>`).join('')}
-                        </ul>
+                <button onclick="doCheckIn()" 
+                        class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-bold text-white text-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all ${status.isCheckedIn ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${status.isCheckedIn ? 'disabled' : ''}>
+                    ${status.isCheckedIn ? '✓ 今日已签到' : '立即签到'}
+                </button>
+            `;
+            
+            showModal('modal-checkin', body.innerHTML);
+        };
+
+        window.doCheckIn = () => {
+            const result = gamificationManager.checkIn();
+            if (result.success) {
+                effectManager.createLevelUpEffect(gamificationManager.state.checkInStreak);
+                alert(result.message);
+                showCheckInModal();
+                updateUI();
+            } else {
+                alert(result.message);
+            }
+        };
+
+        // 名人事迹页面
+        function renderMathematicians() {
+            const container = document.getElementById('mathematicians-container');
+            const mathematicians = getAllMathematicians();
+            
+            container.innerHTML = mathematicians.map(m => `
+                <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 hover:border-amber-500/50 transition-all cursor-pointer group" 
+                     onclick="showMathematicianDetail(${m.id})">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-5xl group-hover:scale-110 transition-transform">${m.avatar}</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-amber-400">${m.name}</h3>
+                            <div class="text-sm text-slate-400">${m.title}</div>
+                        </div>
                     </div>
-                    
-                    <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700">
-                        <h4 class="text-cyan-400 font-bold mb-3">经典公式</h4>
-                        <div class="space-y-3 font-mono text-sm">
-                            ${realm.formulas.map(f => `<div class="text-cyan-300 bg-slate-800 p-2 rounded">${f}</div>`).join('')}
+                    <div class="text-sm text-slate-500 mb-3">${m.era} · ${m.country}</div>
+                    <p class="text-slate-300 text-sm line-clamp-2">${m.story.substring(0, 80)}...</p>
+                </div>
+            `).join('');
+        }
+
+        window.showMathematicianDetail = (id) => {
+            const m = getMathematician(id);
+            const body = document.getElementById('mathematician-detail-body');
+            
+            body.innerHTML = `
+                <div class="mb-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-6xl">${m.avatar}</div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-amber-400">${m.name}</h2>
+                            <div class="text-lg text-slate-400">${m.title}</div>
+                            <div class="text-sm text-slate-500 mt-1">${m.era} · ${m.country}</div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="mt-6 bg-amber-500/5 border-l-4 border-amber-500 p-4 rounded">
-                    <p class="text-amber-400 italic text-sm">"${realm.trivia}"</p>
-                </div>
-                
-                <div class="mt-6 flex justify-end gap-4">
-                    <button onclick="closeModal('modal-detail')" class="px-4 py-2 text-slate-400 hover:text-white transition-colors">关闭</button>
-                    <button onclick="closeModal('modal-detail'); navigateTo('challenge');" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded text-white transition-colors active:scale-95">去挑战此境界</button>
+                <div class="prose prose-invert max-w-none">
+                    <div class="bg-slate-900/50 p-4 rounded-lg mb-6 border-l-4 border-amber-500">
+                        <p class="text-slate-300 leading-relaxed">${m.story}</p>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-cyan-400 mb-3">主要成就</h3>
+                    <ul class="space-y-2 mb-6">
+                        ${m.achievements.map(a => `
+                            <li class="flex items-start gap-2 text-slate-300">
+                                <span class="text-cyan-400 mt-1">✓</span>
+                                <span>${a}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                    
+                    <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-lg mb-6">
+                        <div class="text-amber-400 italic">"${m.quote}"</div>
+                    </div>
+                    
+                    <div class="bg-purple-500/10 border border-purple-500/30 p-4 rounded-lg">
+                        <div class="text-purple-400 font-bold mb-2">📝 趣闻轶事</div>
+                        <div class="text-slate-300">${m.trivia}</div>
+                    </div>
                 </div>
             `;
-            document.getElementById('modal-detail').classList.add('active');
-        }
+            
+            showModal('modal-mathematician', body.innerHTML);
+            
+            // 记录探索
+            const result = gamificationManager.recordExploration(`mathematician_${id}`);
+            if (result.isNew && result.completedTasks.length > 0) {
+                setTimeout(() => {
+                    alert(`🎉 恭喜完成每日任务：${result.completedTasks[0].name}！`);
+                }, 500);
+            }
+        };
 
-        function startQuiz(levelId) {
-            const questions = quizBank.filter(q => q.level === levelId);
-            if(questions.length === 0) return alert("该境界暂无题库！");
+        // 排行榜
+        function renderLeaderboard() {
+            const data = gamificationManager.getLeaderboard();
+            const container = document.getElementById('leaderboard-container');
             
-            const q = questions[Math.floor(Math.random() * questions.length)];
-            const realm = mathData.find(r => r.id === levelId);
-            
-            const body = document.getElementById('modal-quiz-body');
-            body.innerHTML = `
-                <div class="text-center mb-6">
-                    <h3 class="text-xl font-bold" style="color: ${realm.color}">${realm.name} · 试炼</h3>
+            container.innerHTML = `
+                <div class="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-b border-slate-700">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-amber-400">你的排名</div>
+                        <div class="text-4xl font-black text-white mt-2">第 ${data.userRank} 名</div>
+                        <div class="text-sm text-slate-400 mt-1">修为：${data.userExp} · 等级：Lv.${data.userLevel}</div>
+                    </div>
                 </div>
-                <div class="bg-slate-900/50 p-4 rounded-lg mb-6">
-                    <p class="text-lg">${q.q}</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    ${q.opts.map((opt, i) => `
-                        <button onclick="handleAnswer(${i}, ${q.ans}, ${levelId})" class="w-full p-3 bg-slate-700 hover:bg-slate-600 rounded text-left transition-colors active:scale-95">
-                            <span class="inline-block w-6 h-6 rounded bg-slate-900 text-center mr-2">${['A','B','C','D'][i]}</span>
-                            ${opt}
-                        </button>
+                
+                <div class="divide-y divide-slate-700">
+                    ${data.top.map((p, index) => `
+                        <div class="p-4 flex items-center gap-4 hover:bg-slate-700/30 transition-colors ${index < 3 ? 'bg-gradient-to-r from-amber-500/5 to-transparent' : ''}">
+                            <div class="w-12 text-center font-bold ${index === 0 ? 'text-amber-400 text-xl' : index === 1 ? 'text-slate-300 text-lg' : index === 2 ? 'text-amber-600 text-lg' : 'text-slate-500'}">
+                                ${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
+                            </div>
+                            <div class="text-3xl">${p.avatar}</div>
+                            <div class="flex-1">
+                                <div class="font-bold text-slate-200">${p.name}</div>
+                                <div class="text-xs text-slate-500">Lv.${p.level}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-amber-400 font-bold">${p.exp.toLocaleString()}</div>
+                                <div class="text-xs text-slate-500">修为</div>
+                            </div>
+                        </div>
                     `).join('')}
                 </div>
             `;
-            document.getElementById('modal-quiz').classList.add('active');
         }
 
-        function handleAnswer(selected, correct, levelId) {
-            const modal = document.getElementById('modal-quiz');
-            const body = document.getElementById('modal-quiz-body');
+        // 趣味知识
+        window.refreshFunFact = () => {
+            const fact = getRandomFunFact();
+            const display = document.getElementById('fun-fact-display');
+            display.innerHTML = `
+                <div class="mb-2 text-purple-400 font-bold">${fact.category}</div>
+                <div class="text-lg leading-relaxed">${fact.fact}</div>
+            `;
+        };
+
+        // 名人堂和 timeline 管理器
+        window.hallOfFame = {
+            render: () => renderHallOfFame(),
+            search: (query) => searchHallOfFame(query),
+            filterByCategory: (category) => filterHallOfFameByCategory(category),
+            filterByDifficulty: (difficulty) => filterHallOfFameByDifficulty(difficulty),
+            showDetail: (id) => showHallOfFameDetail(id)
+        };
+        
+        window.timeline = {
+            render: () => renderTimeline(),
+            search: (query) => searchTimeline(query),
+            filterByEra: (era) => filterTimelineByEra(era),
+            filterByCategory: (category) => filterTimelineByCategory(category)
+        };
+
+        // 渲染名人堂
+        function renderHallOfFame(filteredData = null) {
+            const container = document.getElementById('hof-container');
+            const data = filteredData || hallOfFameManager.getAllPeople();
             
-            if(selected === correct) {
-                const expGain = levelId * 10;
-                userState.exp += expGain;
-                userState.correctCount++;
-                
-                if(!userState.unlockedLevels.includes(levelId + 1) && levelId < 9) {
-                    userState.unlockedLevels.push(levelId + 1);
-                }
-                
-                body.innerHTML = `
-                    <div class="text-center">
-                        <div class="text-6xl mb-4">✨</div>
-                        <h3 class="text-2xl font-bold text-green-400 mb-2">道心通明</h3>
-                        <p class="text-slate-300 mb-6">回答正确！修为 +${expGain}</p>
-                        <button onclick="closeModal('modal-quiz'); updateUI();" class="px-6 py-2 bg-green-600 rounded hover:bg-green-500 transition-colors">继续修炼</button>
+            container.innerHTML = data.map(p => `
+                <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 hover:border-amber-500/50 transition-all cursor-pointer group hover-lift" 
+                     onclick="window.hallOfFame.showDetail(${p.id})">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-5xl group-hover:scale-110 transition-transform">${p.avatar}</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-amber-400">${p.name}</h3>
+                            <div class="text-sm text-slate-400">${p.title}</div>
+                        </div>
                     </div>
-                `;
-            } else {
-                body.innerHTML = `
-                    <div class="text-center">
-                        <div class="text-6xl mb-4">☁️</div>
-                        <h3 class="text-2xl font-bold text-red-400 mb-2">心魔入侵</h3>
-                        <p class="text-slate-300 mb-6">回答错误，再接再厉。</p>
-                        <button onclick="closeModal('modal-quiz');" class="px-6 py-2 bg-slate-700 rounded hover:bg-slate-600 transition-colors">重新闭关</button>
+                    <div class="flex gap-2 mb-3">
+                        <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">${p.era}</span>
+                        <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">${p.country}</span>
                     </div>
-                `;
-            }
-            saveState();
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        document.querySelectorAll('.modal').forEach(m => {
-            m.addEventListener('click', e => {
-                if(e.target === m) closeModal(m.id);
-            });
-        });
-
-        // ================= 小游戏 =================
-        function startGame(type) {
-            const area = document.getElementById('game-area');
-            area.classList.remove('hidden');
-            userState.gamesPlayed++;
-            saveState();
+                    <div class="flex items-center gap-1 mb-3">
+                        ${'⭐'.repeat(p.difficulty)}
+                    </div>
+                    <p class="text-slate-300 text-sm line-clamp-2">${p.biography.substring(0, 80)}...</p>
+                    <div class="flex justify-between items-center mt-4 text-xs text-slate-500">
+                        <span>👁️ ${p.views.toLocaleString()}</span>
+                        <span>❤️ ${p.likes.toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
             
-            if(type === 'puzzle') {
-                const formulas = ["e^(iπ)+1=0", "a²+b²=c²", "E=mc²"];
-                const target = formulas[Math.floor(Math.random()*formulas.length)];
-                const chars = target.split('').sort(() => Math.random() - 0.5);
-                
-                area.innerHTML = `
-                    <div class="bg-slate-800/80 rounded-xl p-6 border border-amber-500/30 shadow-lg">
-                        <h3 class="text-xl font-bold text-amber-400 mb-4">公式拼图：请还原因公式</h3>
-                        <div id="puzzle-target" class="min-h-[50px] bg-slate-900 p-2 rounded mb-4 flex flex-wrap gap-2 border border-dashed border-slate-600"></div>
-                        <div id="puzzle-source" class="flex flex-wrap gap-2 justify-center mb-4">
-                            ${chars.map(c => `<button class="px-3 py-1 bg-slate-700 rounded hover:bg-amber-500/30 transition-colors active:scale-90" onclick="movePuzzle(this)">${c}</button>`).join('')}
-                        </div>
-                        <div class="text-center">
-                            <button onclick="checkPuzzle('${target}')" class="px-6 py-2 bg-amber-500 text-slate-900 rounded font-bold active:scale-95">确认</button>
-                        </div>
-                    </div>
-                `;
-            } else if(type === 'sequence') {
-                const seqs = [
-                    {arr: [1, 1, 2, 3, 5], ans: 8, hint: "斐波那契"},
-                    {arr: [2, 4, 8, 16, 32], ans: 64, hint: "2的幂"}
-                ];
-                const game = seqs[Math.floor(Math.random()*seqs.length)];
-                
-                area.innerHTML = `
-                    <div class="bg-slate-800/80 rounded-xl p-6 border border-blue-500/30 shadow-lg">
-                        <h3 class="text-xl font-bold text-blue-400 mb-4">数列推演</h3>
-                        <p class="text-slate-300 mb-4">提示: ${game.hint}</p>
-                        <div class="text-2xl tracking-widest mb-6 text-center font-mono text-white">${game.arr.join(' , ')} , ?</div>
-                        <input id="seq-answer" type="number" class="w-full p-2 bg-slate-900 rounded border border-slate-600 mb-4" placeholder="输入下一个数字">
-                        <div class="text-center">
-                            <button onclick="checkSeq(${game.ans})" class="px-6 py-2 bg-blue-500 text-white rounded font-bold active:scale-95">提交</button>
-                        </div>
-                    </div>
-                `;
-            }
-            updateUI();
-        }
-
-        function movePuzzle(btn) {
-            const target = document.getElementById('puzzle-target');
-            const source = document.getElementById('puzzle-source');
-            if(btn.parentElement.id === 'puzzle-source') target.appendChild(btn);
-            else source.appendChild(btn);
+            // 渲染推荐
+            renderRecommendations();
         }
         
-        function checkPuzzle(target) {
-            const current = Array.from(document.getElementById('puzzle-target').querySelectorAll('button')).map(b => b.innerText).join('');
-            if(current === target) {
-                gainExp(20, "拼图正确！");
-                document.getElementById('game-area').classList.add('hidden');
-            } else {
-                alert("顺序不对哦");
-            }
+        function renderRecommendations() {
+            const container = document.getElementById('hof-recommendations');
+            const recommendations = contentRecommender.getPersonalizedRecommendations('person', 3);
+            
+            container.innerHTML = recommendations.map(p => `
+                <div class="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-lg p-4 border border-cyan-500/30 cursor-pointer hover:border-cyan-400 transition-all"
+                     onclick="window.hallOfFame.showDetail(${p.id})">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="text-3xl">${p.avatar}</div>
+                        <div>
+                            <div class="font-bold text-cyan-400">${p.name}</div>
+                            <div class="text-xs text-slate-400">${p.title}</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500">推荐度：{(p.score * 10).toFixed(0)}%</div>
+                </div>
+            `).join('');
         }
         
-        function checkSeq(ans) {
-            const val = document.getElementById('seq-answer').value;
-            if(parseInt(val) === ans) {
-                gainExp(15, "推演正确！");
-                document.getElementById('game-area').classList.add('hidden');
-            } else {
-                alert("再想想");
+        function searchHallOfFame(query) {
+            if (!query) {
+                renderHallOfFame();
+                return;
             }
+            const results = hallOfFameManager.search(query);
+            renderHallOfFame(results);
+            contentRecommender.recordSearch(query, results);
         }
-
-        function gainExp(amount, msg) {
-            userState.exp += amount;
-            saveState();
-            updateUI();
-            alert(`✨ ${msg} 修为 +${amount}`);
+        
+        function filterHallOfFameByCategory(category) {
+            if (!category) {
+                renderHallOfFame();
+                return;
+            }
+            const results = hallOfFameManager.filterByCategory(category);
+            renderHallOfFame(results);
         }
+        
+        function filterHallOfFameByDifficulty(difficulty) {
+            if (!difficulty) {
+                renderHallOfFame();
+                return;
+            }
+            const results = hallOfFameManager.filterByDifficulty(parseInt(difficulty));
+            renderHallOfFame(results);
+        }
+        
+        function showHallOfFameDetail(id) {
+            const person = hallOfFameManager.getPerson(id);
+            hallOfFameManager.recordView(id);
+            contentRecommender.recordView('person', id);
+            
+            const modalBody = document.getElementById('mathematician-detail-body');
+            modalBody.innerHTML = `
+                <div class="mb-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-6xl">${person.avatar}</div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-amber-400">${person.name}</h2>
+                            <div class="text-lg text-slate-400">${person.title}</div>
+                            <div class="text-sm text-slate-500 mt-1">${person.era} · ${person.country}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="prose prose-invert max-w-none">
+                    <div class="bg-slate-900/50 p-4 rounded-lg mb-6 border-l-4 border-amber-500">
+                        <p class="text-slate-300 leading-relaxed">${person.biography}</p>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-cyan-400 mb-3">主要成就</h3>
+                    <ul class="space-y-2 mb-6">
+                        ${person.achievements.map(a => `
+                            <li class="flex items-start gap-2 text-slate-300">
+                                <span class="text-cyan-400 mt-1">✓</span>
+                                <div>
+                                    <span class="font-bold">${a.name}</span> (${a.year}): ${a.desc}
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                    
+                    <h3 class="text-xl font-bold text-purple-400 mb-3">生平大事记</h3>
+                    <div class="space-y-2 mb-6">
+                        ${person.events.map(e => `
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-amber-400 font-bold w-20">${e.year}</span>
+                                <span class="text-slate-300">${e.event}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-lg mb-6">
+                        <div class="text-amber-400 italic">"${person.quotes[0]}"</div>
+                    </div>
+                    
+                    <div class="bg-purple-500/10 border border-purple-500/30 p-4 rounded-lg mb-6">
+                        <div class="text-purple-400 font-bold mb-2">📝 历史影响</div>
+                        <div class="text-slate-300">${person.influence}</div>
+                    </div>
+                    
+                    <div class="flex gap-4 mt-6">
+                        <button onclick="window.hallOfFame.like(${person.id}); this.classList.add('liked');" 
+                                class="flex-1 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">
+                            ❤️ 点赞 (${person.likes})
+                        </button>
+                        <button onclick="closeModal('modal-mathematician')" 
+                                class="flex-1 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            showModal('modal-mathematician', modalBody.innerHTML);
+        }
+        
+        window.hallOfFame.like = (id) => {
+            const liked = hallOfFameManager.like(id);
+            if (liked) {
+                contentRecommender.recordInteraction('person', id, 'like');
+                alert('❤️ 感谢点赞！');
+            }
+        };
+        
+        // 渲染时间线
+        function renderTimeline(filteredData = null) {
+            const container = document.getElementById('timeline-events');
+            const data = filteredData || historicalEventsManager.getAllEvents();
+            
+            container.innerHTML = data.map((e, index) => `
+                <div class="relative flex items-center ${index % 2 === 0 ? 'flex-row-reverse' : ''}">
+                    <div class="w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}">
+                        <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 hover:border-cyan-500/50 transition-all cursor-pointer"
+                             onclick="window.timeline.showDetail(${e.id})">
+                            <div class="text-4xl mb-3">${e.image}</div>
+                            <div class="text-sm text-cyan-400 font-bold mb-2">${e.year}</div>
+                            <h3 class="text-xl font-bold text-slate-200 mb-2">${e.title}</h3>
+                            <p class="text-slate-400 text-sm line-clamp-2">${e.description}</p>
+                            <div class="flex gap-2 mt-4">
+                                <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">${e.category}</span>
+                                <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">${e.era}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-cyan-500 border-4 border-slate-900 z-10"></div>
+                </div>
+            `).join('');
+        }
+        
+        function searchTimeline(query) {
+            if (!query) {
+                renderTimeline();
+                return;
+            }
+            const results = historicalEventsManager.search(query);
+            renderTimeline(results);
+        }
+        
+        function filterTimelineByEra(era) {
+            if (!era) {
+                renderTimeline();
+                return;
+            }
+            const results = historicalEventsManager.filterByEra(era);
+            renderTimeline(results);
+        }
+        
+        function filterTimelineByCategory(category) {
+            if (!category) {
+                renderTimeline();
+                return;
+            }
+            const results = historicalEventsManager.filterByCategory(category);
+            renderTimeline(results);
+        }
+        
+        window.timeline.showDetail = (id) => {
+            const event = historicalEventsManager.getAllEvents().find(e => e.id === id);
+            contentRecommender.recordView('event', id);
+            
+            alert(`${event.title}\n\n${event.year}\n\n${event.description}\n\n影响：${event.impact}`);
+        };
 
-        // ================= 工具函数 =================
-        function updateUI() {
-            userState.level = 1 + Math.floor(userState.exp / 100);
+        // 初始化
+        window.onload = function() {
+            initUserState();
+            initCanvas();
+            initModals();
+            initNavigation();
             
-            document.getElementById('nav-level').innerText = userState.level;
-            document.getElementById('profile-level').innerText = userState.level;
-            document.getElementById('stat-correct').innerText = userState.correctCount;
-            document.getElementById('stat-games').innerText = userState.gamesPlayed;
-            
-            const nextExp = userState.level * 100;
-            document.getElementById('profile-exp-text').innerText = `${userState.exp} / ${nextExp}`;
-            document.getElementById('profile-exp-bar').style.width = `${(userState.exp % 100)}%`;
-            
+            renderRealms();
             renderChallengeList();
-        }
-
-        function saveState() {
-            localStorage.setItem('math_cultivation_v3', JSON.stringify(userState));
-        }
-
-        function loadState() {
-            const saved = localStorage.getItem('math_cultivation_v3');
-            if(saved) userState = JSON.parse(saved);
-        }
+            animateStats();
+            updateProfileUI();
+            updateCurrentRealm();
+            renderAchievements();
+            renderMathematicians();
+            renderLeaderboard();
+            refreshFunFact();
+            
+            // 初始化新玩法
+            towerDefense.init('tower-defense-game');
+            formulaBattle.init('formula-battle-game');
+            quizCompetition.init('quiz-competition-game');
+            
+            // 初始化名人堂和时间线
+            renderHallOfFame();
+            renderTimeline();
+            
+            // 页面导航监听
+            const originalNavigate = window.navigateTo;
+            window.navigateTo = (pageId) => {
+                originalNavigate(pageId);
+                if (pageId === 'stories') renderMathematicians();
+                if (pageId === 'social') renderLeaderboard();
+                if (pageId === 'hall-of-fame') renderHallOfFame();
+                if (pageId === 'timeline') renderTimeline();
+                if (pageId === 'gameplay') {
+                    setTimeout(() => {
+                        towerDefense.init('tower-defense-game');
+                        formulaBattle.init('formula-battle-game');
+                        quizCompetition.init('quiz-competition-game');
+                    }, 100);
+                }
+            };
+            
+            console.log('🎉 数学修仙传 v6.0 - 全面功能扩展版');
+            console.log('当前用户状态:', getUserState());
+        };
     </script>
 </body>
 </html>
