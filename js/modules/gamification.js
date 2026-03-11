@@ -90,8 +90,11 @@ class GamificationManager {
             totalPlayTime: 0,
             sessionStart: Date.now()
         };
+        this._timerId = null;
+        this._saveIntervalId = null;
         this.loadProgress();
         this.startTimer();
+        this._bindCleanupEvents();
     }
 
     loadProgress() {
@@ -105,7 +108,6 @@ class GamificationManager {
             }
         }
         
-        // 重置每日任务（新的一天）
         this.resetDailyTasksIfNeeded();
     }
 
@@ -114,13 +116,55 @@ class GamificationManager {
     }
 
     startTimer() {
-        setInterval(() => {
+        if (this._timerId) return;
+        
+        this._timerId = setInterval(() => {
             this.state.totalPlayTime++;
-            if (Date.now() - this.state.sessionStart > 3600000) { // 每小时
+            if (Date.now() - this.state.sessionStart > 3600000) {
                 this.state.sessionStart = Date.now();
             }
-            this.saveProgress();
         }, 1000);
+        
+        this._saveIntervalId = setInterval(() => {
+            this.saveProgress();
+        }, 30000);
+    }
+
+    stopTimer() {
+        if (this._timerId) {
+            clearInterval(this._timerId);
+            this._timerId = null;
+        }
+        if (this._saveIntervalId) {
+            clearInterval(this._saveIntervalId);
+            this._saveIntervalId = null;
+        }
+        this.saveProgress();
+    }
+
+    _bindCleanupEvents() {
+        window.addEventListener('beforeunload', () => {
+            this.stopTimer();
+        });
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.saveProgress();
+            }
+        });
+    }
+
+    destroy() {
+        this.stopTimer();
+        this.state = {
+            checkInStreak: 0,
+            lastCheckIn: null,
+            completedTasks: [],
+            taskProgress: {},
+            exploredRealms: [],
+            totalPlayTime: 0,
+            sessionStart: Date.now()
+        };
     }
 
     resetDailyTasksIfNeeded() {

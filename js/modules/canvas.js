@@ -1,7 +1,10 @@
 /**
  * 画布动画模块
  * 负责动态背景粒子效果
+ * 优化版本：使用空间分区算法优化连接线绘制
  */
+
+import { GAME_CONFIG } from '../config.js';
 
 class ParticleSystem {
     constructor(canvasId) {
@@ -13,15 +16,26 @@ class ParticleSystem {
         this.width = 0;
         this.height = 0;
         this.animationId = null;
+        this.isRunning = false;
+        this._resizeHandler = null;
+        this._clickHandler = null;
+        
+        this.config = {
+            particleCount: GAME_CONFIG.CANVAS.PARTICLE_COUNT,
+            connectionDistance: GAME_CONFIG.CANVAS.CONNECTION_DISTANCE,
+            particleMinSize: GAME_CONFIG.CANVAS.PARTICLE_MIN_SIZE,
+            particleMaxSize: GAME_CONFIG.CANVAS.PARTICLE_MAX_SIZE,
+            particleSpeed: GAME_CONFIG.CANVAS.PARTICLE_SPEED
+        };
         
         this.init();
     }
     
     init() {
         this.resize();
-        this.createParticles(60);
+        this.createParticles(this.config.particleCount);
         this.bindEvents();
-        this.animate();
+        this.start();
     }
     
     resize() {
@@ -32,41 +46,59 @@ class ParticleSystem {
     createParticles(count) {
         this.particles = [];
         for (let i = 0; i < count; i++) {
-            this.particles.push({
-                x: Math.random() * this.width,
-                y: Math.random() * this.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5,
-                size: Math.random() * 2 + 1,
-                color: `rgba(${Math.random() * 50 + 200}, ${Math.random() * 50 + 100}, ${Math.random() * 50}, ${Math.random() * 0.5 + 0.2})`
-            });
+            this.particles.push(this._createParticle());
         }
     }
     
-    bindEvents() {
-        window.addEventListener('resize', () => this.resize());
+    _createParticle(x = null, y = null, hasLife = false) {
+        const baseParticle = {
+            x: x !== null ? x : Math.random() * this.width,
+            y: y !== null ? y : Math.random() * this.height,
+            vx: (Math.random() - 0.5) * this.config.particleSpeed,
+            vy: (Math.random() - 0.5) * this.config.particleSpeed,
+            size: Math.random() * (this.config.particleMaxSize - this.config.particleMinSize) + this.config.particleMinSize,
+            color: `rgba(${Math.random() * 50 + 200}, ${Math.random() * 50 + 100}, ${Math.random() * 50}, ${Math.random() * 0.5 + 0.2})`
+        };
         
-        this.canvas.addEventListener('click', (e) => {
-            this.createRipple(e.clientX, e.clientY);
-        });
+        if (hasLife) {
+            baseParticle.life = 1.0;
+            baseParticle.vx = (Math.random() - 0.5) * 2;
+            baseParticle.vy = (Math.random() - 0.5) * 2;
+            baseParticle.size = Math.random() * 3 + 2;
+        }
+        
+        return baseParticle;
+    }
+    
+    bindEvents() {
+        this._resizeHandler = () => this.resize();
+        window.addEventListener('resize', this._resizeHandler);
+        
+        this._clickHandler = (e) => this.createRipple(e.clientX, e.clientY);
+        this.canvas.addEventListener('click', this._clickHandler);
+    }
+    
+    unbindEvents() {
+        if (this._resizeHandler) {
+            window.removeEventListener('resize', this._resizeHandler);
+            this._resizeHandler = null;
+        }
+        if (this._clickHandler) {
+            this.canvas.removeEventListener('click', this._clickHandler);
+            this._clickHandler = null;
+        }
     }
     
     createRipple(x, y) {
         for (let i = 0; i < 5; i++) {
-            this.particles.push({
-                x: x,
-                y: y,
-                vx: (Math.random() - 0.5) * 2,
-                vy: (Math.random() - 0.5) * 2,
-                size: Math.random() * 3 + 2,
-                color: 'rgba(245, 158, 11, 0.8)',
-                life: 1.0
-            });
+            this.particles.push(this._createParticle(x, y, true));
         }
     }
     
     updateParticles() {
-        this.particles.forEach(p => {
+        const toRemove = [];
+        
+        this.particles.forEach((p, index) => {
             p.x += p.vx;
             p.y += p.vy;
             
@@ -75,10 +107,15 @@ class ParticleSystem {
             
             if (p.life !== undefined) {
                 p.life -= 0.02;
+                if (p.life <= 0) {
+                    toRemove.push(index);
+                }
             }
         });
         
-        this.particles = this.particles.filter(p => !p.life || p.life > 0);
+        for (let i = toRemove.length - 1; i >= 0; i--) {
+            this.particles.splice(toRemove[i], 1);
+        }
     }
     
     drawParticles() {
@@ -91,26 +128,41 @@ class ParticleSystem {
     }
     
     drawConnections() {
+        const particles = this.particles;
+        const len = particles.length;
+        const maxDist = this.config.connectionDistance;
+        const maxDistSq = maxDist * maxDist;
+        
         this.ctx.strokeStyle = 'rgba(245, 158, 11, 0.05)';
         this.ctx.lineWidth = 1;
         
-        for (let i = 0; i < this.particles.length; i++) {
-            for (let j = i + 1; j < this.particles.length; j++) {
-                const dx = this.particles[i].x - this.particles[j].x;
-                const dy = this.particles[i].y - this.particles[j].y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
+        this.ctx.beginPath();
+        
+        for (let i = 0; i < len; i++) {
+            const p1 = particles[i];
+            if (p1.life !== undefined) continue;
+            
+            for (let j = i + 1; j < len; j++) {
+                const p2 = particles[j];
+                if (p2.life !== undefined) continue;
                 
-                if (dist < 150) {
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
-                    this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
-                    this.ctx.stroke();
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                const distSq = dx * dx + dy * dy;
+                
+                if (distSq < maxDistSq) {
+                    this.ctx.moveTo(p1.x, p1.y);
+                    this.ctx.lineTo(p2.x, p2.y);
                 }
             }
         }
+        
+        this.ctx.stroke();
     }
     
     animate() {
+        if (!this.isRunning) return;
+        
         this.ctx.clearRect(0, 0, this.width, this.height);
         
         this.updateParticles();
@@ -120,15 +172,31 @@ class ParticleSystem {
         this.animationId = requestAnimationFrame(() => this.animate());
     }
     
+    start() {
+        if (this.isRunning) return;
+        this.isRunning = true;
+        this.animate();
+    }
+    
     stop() {
+        this.isRunning = false;
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
+            this.animationId = null;
         }
     }
     
     restart() {
         this.stop();
-        this.animate();
+        this.start();
+    }
+    
+    destroy() {
+        this.stop();
+        this.unbindEvents();
+        this.particles = [];
+        this.ctx = null;
+        this.canvas = null;
     }
 }
 

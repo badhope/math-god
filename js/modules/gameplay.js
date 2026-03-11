@@ -5,6 +5,7 @@
 
 import { updateExp, getUserState } from './state.js';
 import { effectManager } from './effects.js';
+import { quizBank } from '../data.js';
 
 // ==================== 玩法 1: 数学塔防 ====================
 class MathTowerDefense {
@@ -376,6 +377,7 @@ class QuizCompetition {
         this.score = 0;
         this.timeLeft = 30;
         this.timer = null;
+        this.usedQuestions = new Set();
     }
 
     init(containerId) {
@@ -412,28 +414,40 @@ class QuizCompetition {
         `;
     }
 
+    _getRandomQuestions(count = 5) {
+        const availableQuestions = quizBank.filter((_, index) => !this.usedQuestions.has(index));
+        if (availableQuestions.length < count) {
+            this.usedQuestions.clear();
+            return this._shuffleArray([...quizBank]).slice(0, count);
+        }
+        const shuffled = this._shuffleArray([...availableQuestions]);
+        return shuffled.slice(0, count);
+    }
+
+    _shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
     startGame() {
         this.score = 0;
         this.currentQuestion = 0;
+        this.usedQuestions.clear();
+        this.questions = this._getRandomQuestions(5);
         document.getElementById('qc-game-area').classList.remove('hidden');
         this.nextQuestion();
     }
 
     nextQuestion() {
-        const questions = [
-            { q: '1+1=?', opts: ['1', '2', '3', '4'], ans: 1 },
-            { q: '勾股定理是？', opts: ['a+b=c', 'a²+b²=c²', 'a×b=c', 'a/b=c'], ans: 1 },
-            { q: '圆周率π≈？', opts: ['3.14', '2.14', '4.14', '5.14'], ans: 0 },
-            { q: '100 以内最大素数？', opts: ['97', '93', '91', '89'], ans: 0 },
-            { q: '三角形内角和？', opts: ['90°', '180°', '270°', '360°'], ans: 1 }
-        ];
-        
-        if (this.currentQuestion >= questions.length) {
+        if (this.currentQuestion >= this.questions.length) {
             this.endGame();
             return;
         }
         
-        const q = questions[this.currentQuestion];
+        const q = this.questions[this.currentQuestion];
         document.getElementById('qc-question-num').innerText = this.currentQuestion + 1;
         document.getElementById('qc-question').innerText = q.q;
         
@@ -466,15 +480,7 @@ class QuizCompetition {
     }
 
     answer(selectedIndex) {
-        const questions = [
-            { q: '1+1=?', opts: ['1', '2', '3', '4'], ans: 1 },
-            { q: '勾股定理是？', opts: ['a+b=c', 'a²+b²=c²', 'a×b=c', 'a/b=c'], ans: 1 },
-            { q: '圆周率π≈？', opts: ['3.14', '2.14', '4.14', '5.14'], ans: 0 },
-            { q: '100 以内最大素数？', opts: ['97', '93', '91', '89'], ans: 0 },
-            { q: '三角形内角和？', opts: ['90°', '180°', '270°', '360°'], ans: 1 }
-        ];
-        
-        const q = questions[this.currentQuestion];
+        const q = this.questions[this.currentQuestion];
         
         if (selectedIndex === q.ans) {
             this.score += 10 + this.timeLeft;
@@ -499,6 +505,13 @@ class QuizCompetition {
         effectManager.createLevelUpEffect(Math.floor(this.score / 50));
         
         document.getElementById('qc-game-area').classList.add('hidden');
+    }
+
+    destroy() {
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
     }
 }
 

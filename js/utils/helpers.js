@@ -432,4 +432,67 @@ export function cache(ttl = 5000) {
     };
 }
 
+/**
+ * HTML 转义函数 - 防止 XSS 攻击
+ * @param {string} str - 需要转义的字符串
+ * @returns {string} 转义后的安全字符串
+ */
+export function escapeHtml(str) {
+    if (typeof str !== 'string') return str;
+    const htmlEntities = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    };
+    return str.replace(/[&<>"']/g, char => htmlEntities[char]);
+}
+
+/**
+ * 安全设置 innerHTML - 自动转义用户输入
+ * @param {HTMLElement} element - 目标元素
+ * @param {string} html - HTML 内容
+ * @param {Object} options - 选项
+ * @param {boolean} options.escape - 是否转义 (默认 true)
+ */
+export function safeSetInnerHTML(element, html, options = { escape: true }) {
+    if (!element) return;
+    if (options.escape && typeof html === 'string') {
+        element.innerHTML = escapeHtml(html);
+    } else {
+        element.innerHTML = html;
+    }
+}
+
+/**
+ * 创建安全 DOM 元素
+ * @param {string} tag - 标签名
+ * @param {Object} attrs - 属性对象
+ * @param {string} textContent - 文本内容 (自动转义)
+ * @returns {HTMLElement} 创建的元素
+ */
+export function createElement(tag, attrs = {}, textContent = '') {
+    const element = document.createElement(tag);
+    Object.entries(attrs).forEach(([key, value]) => {
+        if (key === 'className') {
+            element.className = value;
+        } else if (key === 'style' && typeof value === 'object') {
+            Object.assign(element.style, value);
+        } else if (key.startsWith('on') && typeof value === 'function') {
+            element.addEventListener(key.slice(2).toLowerCase(), value);
+        } else if (key === 'dataset' && typeof value === 'object') {
+            Object.entries(value).forEach(([k, v]) => {
+                element.dataset[k] = v;
+            });
+        } else {
+            element.setAttribute(key, value);
+        }
+    });
+    if (textContent) {
+        element.textContent = textContent;
+    }
+    return element;
+}
+
 console.log('✅ 工具函数库已加载');
