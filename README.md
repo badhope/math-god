@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![数学修仙传 Logo](https://img.shields.io/badge/数学修仙传-v10.1-blue?style=for-the-badge&logo=github)
+![数学修仙传 Logo](https://img.shields.io/badge/数学修仙传-v10.2-blue?style=for-the-badge&logo=github)
 
 [![GitHub stars](https://img.shields.io/github/stars/badhope/math-god?style=for-the-badge&logo=github&color=yellow)](https://github.com/badhope/math-god/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/badhope/math-god?style=for-the-badge&logo=github&color=blue)](https://github.com/badhope/math-god/network)
