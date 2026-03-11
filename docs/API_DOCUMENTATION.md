@@ -266,7 +266,7 @@ const expensiveCalculation = memoize((n) => {
 统一通知管理器，替代 alert()。
 
 ```javascript
-import { notify } from './js/utils/notify.js';
+import { notificationManager } from './js/utils/notification.js';
 
 // 成功通知
 notify.success('操作成功！');
@@ -301,7 +301,7 @@ const value = await notify.prompt('请输入', '请输入您的名字');
 ### 4.2 快捷函数
 
 ```javascript
-import { showToast, showAlert, showConfirm, showAchievement } from './js/utils/notify.js';
+import { showToast, showAlert, showConfirm, showAchievement } from './js/utils/notification.js';
 
 showToast('消息', 'success');
 showAlert('标题', '内容');
