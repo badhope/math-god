@@ -495,4 +495,57 @@ export function createElement(tag, attrs = {}, textContent = '') {
     return element;
 }
 
+/**
+ * 安全渲染 HTML 模板 - 替换变量并防止 XSS
+ * @param {string} template - HTML 模板字符串，使用 {{variable}} 作为占位符
+ * @param {Object} data - 数据对象
+ * @returns {string} 安全的 HTML 字符串
+ */
+export function safeTemplate(template, data = {}) {
+    return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+        const value = data[key];
+        if (value === undefined || value === null) return '';
+        return escapeHtml(String(value));
+    });
+}
+
+/**
+ * 批量创建 DOM 元素
+ * @param {Array} items - 元素配置数组
+ * @returns {DocumentFragment} 包含所有元素的文档片段
+ */
+export function createElements(items) {
+    const fragment = document.createDocumentFragment();
+    items.forEach(item => {
+        const element = createElement(item.tag, item.attrs, item.textContent);
+        if (item.children && Array.isArray(item.children)) {
+            element.appendChild(createElements(item.children));
+        }
+        fragment.appendChild(element);
+    });
+    return fragment;
+}
+
+/**
+ * 安全设置元素内容 - 支持文本和受控 HTML
+ * @param {HTMLElement} element - 目标元素
+ * @param {Object} config - 配置对象
+ * @param {string} config.text - 纯文本内容 (自动转义)
+ * @param {string} config.html - HTML 内容 (需手动标记为安全)
+ * @param {boolean} config.trusted - 是否信任 HTML 内容
+ */
+export function setContent(element, config) {
+    if (!element) return;
+    
+    if (config.text !== undefined) {
+        element.textContent = config.text;
+    } else if (config.html !== undefined) {
+        if (config.trusted) {
+            element.innerHTML = config.html;
+        } else {
+            element.textContent = config.html;
+        }
+    }
+}
+
 console.log('✅ 工具函数库已加载');

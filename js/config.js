@@ -4,6 +4,8 @@
  */
 
 export const GAME_CONFIG = {
+    VERSION: 'v10.3',
+    
     LEVEL: {
         BASE_EXP: 100,
         MAX_LEVEL: 10,
@@ -29,25 +31,42 @@ export const GAME_CONFIG = {
         STREAK_BONUS_MAX: 5,
         STREAK_BONUS_PER_CORRECT: 2,
         TIMER_DURATION: 30,
-        QUESTIONS_PER_ROUND: 5
+        QUESTIONS_PER_ROUND: 5,
+        EXP_MULTIPLIER: 10,
+        STREAK_THRESHOLD: 5,
+        STREAK_BONUS: 2
     },
     
     GAME: {
         TOWER_DEFENSE: {
             INITIAL_GOLD: 200,
             INITIAL_LIVES: 10,
-            BASE_ENEMY_COUNT: 3
+            BASE_ENEMY_COUNT: 3,
+            TOWER_COST: 50,
+            ENEMY_SPAWN_INTERVAL: 2000
         },
         FORMULA_BATTLE: {
             INITIAL_HP: 100,
             BASE_HEAL: 20,
             HEAL_VARIANCE: 10,
             ENEMY_DAMAGE_BASE: 15,
-            ENEMY_DAMAGE_VARIANCE: 15
+            ENEMY_DAMAGE_VARIANCE: 15,
+            MAX_FORMULAS: 5
         },
         QUIZ_COMPETITION: {
             BASE_SCORE: 10,
             TIME_BONUS_MULTIPLIER: 1
+        },
+        SEQUENCE_GAME: {
+            BASE_EXP: 20,
+            BONUS_MULTIPLIER: 2
+        },
+        CALCULATION_GAME: {
+            BASE_EXP: 15,
+            BONUS_EXP: 10
+        },
+        PUZZLE_GAME: {
+            BASE_EXP: 10
         }
     },
     
@@ -65,19 +84,45 @@ export const GAME_CONFIG = {
         SPARKLE_VELOCITY_MAX: 100,
         PARTICLE_FADE_DURATION: 1000,
         LEVEL_UP_DURATION: 2000,
-        ACHIEVEMENT_DISPLAY_DURATION: 3000
+        ACHIEVEMENT_DISPLAY_DURATION: 3000,
+        PARTICLE_LIFE_DECAY: 0.02,
+        MOUSE_TRAIL_DISTANCE: 20,
+        ANIMATION_DURATION: {
+            FAST: 300,
+            NORMAL: 500,
+            SLOW: 800
+        }
     },
     
     STORAGE: {
         USER_STATE_KEY: 'math_cultivation_v3',
         GAMIFICATION_KEY: 'math_gamification_v1',
-        AUTO_SAVE_INTERVAL: 30000
+        AUTO_SAVE_INTERVAL: 30000,
+        LEARNING_ANALYSIS_KEY: 'math_learning_analysis'
     },
     
     TIMING: {
         SESSION_RESET_INTERVAL: 3600000,
         DEBOUNCE_DELAY: 300,
-        THROTTLE_LIMIT: 300
+        THROTTLE_LIMIT: 300,
+        ONE_HOUR_MS: 3600000,
+        ONE_DAY_MS: 86400000,
+        ONE_MONTH_MS: 2592000000
+    },
+    
+    RECOMMENDER: {
+        TRACKING_INTERVAL: 60000,
+        RECENT_ACTIVITY_DAYS: 30,
+        RECENT_SESSION_HOURS: 1,
+        MAX_SUGGESTIONS: 10,
+        MIN_QUERY_LENGTH: 1,
+        MAX_QUERY_LENGTH: 100
+    },
+    
+    UI: {
+        MODAL_Z_INDEX: 1000,
+        TOAST_DURATION: 3000,
+        NOTIFICATION_POSITION: 'top-right'
     }
 };
 
