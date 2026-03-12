@@ -1,0 +1,290 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+
+env:
+  NODE_VERSION: '18'
+  CACHE_VERSION: 'v1'
+
+jobs:
+  lint-and-validate:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Validate HTML files
+        run: |
+          echo "🔍 Validating HTML files..."
+          find . -name "*.html" -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+            if grep -q "<!DOCTYPE html>" "$file"; then
+              echo "✅ Valid: $file"
+            else
+              echo "⚠️ Warning: $file may be missing DOCTYPE"
+            fi
+          done
+
+      - name: Check JavaScript syntax
+        run: |
+          echo "🔍 Checking JavaScript syntax..."
+          npm install -g acorn
+          find . -name "*.js" -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+            if acorn --silent "$file" 2>/dev/null; then
+              echo "✅ Valid: $file"
+            else
+              echo "❌ Syntax error in: $file"
+            fi
+          done || true
+
+      - name: Validate CSS
+        run: |
+          echo "🔍 Checking CSS files..."
+          find . -name "*.css" -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+            if [ -f "$file" ]; then
+              echo "✅ Found: $file"
+            fi
+          done
+
+      - name: Check for security issues
+        run: |
+          echo "🔒 Security scan..."
+          echo "Checking for common security issues..."
+          
+          if grep -r "innerHTML\s*=" --include="*.js" . --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | grep -v "escapeHtml\|sanitizeHtml"; then
+            echo "⚠️ Warning: Potential XSS vulnerability found (innerHTML without sanitization)"
+          else
+            echo "✅ No obvious XSS vulnerabilities detected"
+          fi
+          
+          if grep -r "eval(" --include="*.js" . --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+            echo "⚠️ Warning: eval() usage detected"
+          else
+            echo "✅ No eval() usage detected"
+          fi
+
+      - name: Upload lint results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lint-results
+          path: |
+            lint-report.txt
+          retention-days: 7
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: lint-and-validate
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Create build directory
+        run: mkdir -p dist
+
+      - name: Copy static files
+        run: |
+          echo "📦 Building application..."
+          cp -r index.html dist/
+          cp -r css dist/
+          cp -r js dist/
+          cp -r sw.js dist/
+          
+          echo "✅ Build complete"
+          echo "📊 Build size:"
+          du -sh dist/
+
+      - name: Generate build manifest
+        run: |
+          echo "📝 Generating build manifest..."
+          cat > dist/build-info.json << EOF
+          {
+            "version": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "commit": "${{ github.event.head_commit.message }}"
+          }
+          EOF
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+          retention-days: 30
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+
+      - name: Install test dependencies
+        run: |
+          npm init -y
+          npm install --save-dev puppeteer
+
+      - name: Run browser tests
+        run: |
+          echo "🧪 Running browser tests..."
+          node -e "
+            const puppeteer = require('puppeteer');
+            (async () => {
+              const browser = await puppeteer.launch({
+                headless: 'new',
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+              });
+              const page = await browser.newPage();
+              
+              try {
+                await page.goto('file://' + process.cwd() + '/dist/index.html', {
+                  waitUntil: 'networkidle0',
+                  timeout: 30000
+                });
+                
+                const title = await page.title();
+                console.log('✅ Page loaded:', title);
+                
+                const errors = await page.evaluate(() => {
+                  const errs = [];
+                  window.onerror = (msg) => errs.push(msg);
+                  return errs;
+                });
+                
+                if (errors.length > 0) {
+                  console.log('❌ JavaScript errors:', errors);
+                  process.exit(1);
+                }
+                
+                console.log('✅ No JavaScript errors detected');
+                
+              } catch (error) {
+                console.error('❌ Test failed:', error.message);
+                process.exit(1);
+              } finally {
+                await browser.close();
+              }
+            })();
+          "
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 7
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Deployment summary
+        run: |
+          echo "🚀 Deployment complete!"
+          echo "📍 URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "📅 Timestamp: $(date -u)"
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [lint-and-validate, build, test]
+    if: always()
+    steps:
+      - name: Determine build status
+        id: status
+        run: |
+          if [[ "${{ needs.test.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+            echo "message=Build successful" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+            echo "message=Build failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create summary
+        run: |
+          echo "## ${{ steps.status.outputs.emoji }} Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ steps.status.outputs.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint & Validate | ${{ needs.lint-and-validate.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY

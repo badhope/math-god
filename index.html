@@ -418,6 +418,7 @@
         import { towerDefense, formulaBattle, quizCompetition } from './js/modules/gameplay.js';
         import { hallOfFameManager, historicalEventsManager } from './js/modules/hall-of-fame.js';
         import { contentRecommender } from './js/modules/recommender.js';
+        import { escapeHtml, sanitizeHtml } from './js/utils/security.js';
 
         // 导出全局函数
         window.navigateTo = navigateTo;
@@ -437,6 +438,9 @@
         window.gameManager = gameManager;
         window.challengeManager = challengeManager;
         window.userState = getUserState();
+        window.towerDefense = towerDefense;
+        window.formulaBattle = formulaBattle;
+        window.quizCompetition = quizCompetition;
         window.updateUI = () => {
             updateProfileUI();
             updateCurrentRealm();
@@ -547,26 +551,35 @@
             const m = getMathematician(id);
             const body = document.getElementById('mathematician-detail-body');
             
+            const safeName = escapeHtml(m.name);
+            const safeTitle = escapeHtml(m.title);
+            const safeEra = escapeHtml(m.era);
+            const safeCountry = escapeHtml(m.country);
+            const safeStory = escapeHtml(m.story);
+            const safeQuote = escapeHtml(m.quote);
+            const safeTrivia = escapeHtml(m.trivia);
+            const safeAchievements = m.achievements.map(a => escapeHtml(a));
+            
             body.innerHTML = `
                 <div class="mb-6">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="text-6xl">${m.avatar}</div>
                         <div>
-                            <h2 class="text-3xl font-bold text-amber-400">${m.name}</h2>
-                            <div class="text-lg text-slate-400">${m.title}</div>
-                            <div class="text-sm text-slate-500 mt-1">${m.era} · ${m.country}</div>
+                            <h2 class="text-3xl font-bold text-amber-400">${safeName}</h2>
+                            <div class="text-lg text-slate-400">${safeTitle}</div>
+                            <div class="text-sm text-slate-500 mt-1">${safeEra} · ${safeCountry}</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="prose prose-invert max-w-none">
                     <div class="bg-slate-900/50 p-4 rounded-lg mb-6 border-l-4 border-amber-500">
-                        <p class="text-slate-300 leading-relaxed">${m.story}</p>
+                        <p class="text-slate-300 leading-relaxed">${safeStory}</p>
                     </div>
                     
                     <h3 class="text-xl font-bold text-cyan-400 mb-3">主要成就</h3>
                     <ul class="space-y-2 mb-6">
-                        ${m.achievements.map(a => `
+                        ${safeAchievements.map(a => `
                             <li class="flex items-start gap-2 text-slate-300">
                                 <span class="text-cyan-400 mt-1">✓</span>
                                 <span>${a}</span>
@@ -575,12 +588,12 @@
                     </ul>
                     
                     <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-lg mb-6">
-                        <div class="text-amber-400 italic">"${m.quote}"</div>
+                        <div class="text-amber-400 italic">"${safeQuote}"</div>
                     </div>
                     
                     <div class="bg-purple-500/10 border border-purple-500/30 p-4 rounded-lg">
                         <div class="text-purple-400 font-bold mb-2">📝 趣闻轶事</div>
-                        <div class="text-slate-300">${m.trivia}</div>
+                        <div class="text-slate-300">${safeTrivia}</div>
                     </div>
                 </div>
             `;
@@ -601,32 +614,40 @@
             const data = gamificationManager.getLeaderboard();
             const container = document.getElementById('leaderboard-container');
             
+            const safeUserRank = escapeHtml(data.userRank);
+            const safeUserExp = escapeHtml(data.userExp);
+            const safeUserLevel = escapeHtml(data.userLevel);
+            
             container.innerHTML = `
                 <div class="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-b border-slate-700">
                     <div class="text-center">
                         <div class="text-2xl font-bold text-amber-400">你的排名</div>
-                        <div class="text-4xl font-black text-white mt-2">第 ${data.userRank} 名</div>
-                        <div class="text-sm text-slate-400 mt-1">修为：${data.userExp} · 等级：Lv.${data.userLevel}</div>
+                        <div class="text-4xl font-black text-white mt-2">第 ${safeUserRank} 名</div>
+                        <div class="text-sm text-slate-400 mt-1">修为：${safeUserExp} · 等级：Lv.${safeUserLevel}</div>
                     </div>
                 </div>
                 
                 <div class="divide-y divide-slate-700">
-                    ${data.top.map((p, index) => `
+                    ${data.top.map((p, index) => {
+                        const safeName = escapeHtml(p.name);
+                        const safeLevel = escapeHtml(p.level);
+                        const safeExp = escapeHtml(p.exp.toLocaleString());
+                        return `
                         <div class="p-4 flex items-center gap-4 hover:bg-slate-700/30 transition-colors ${index < 3 ? 'bg-gradient-to-r from-amber-500/5 to-transparent' : ''}">
                             <div class="w-12 text-center font-bold ${index === 0 ? 'text-amber-400 text-xl' : index === 1 ? 'text-slate-300 text-lg' : index === 2 ? 'text-amber-600 text-lg' : 'text-slate-500'}">
                                 ${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                             </div>
                             <div class="text-3xl">${p.avatar}</div>
                             <div class="flex-1">
-                                <div class="font-bold text-slate-200">${p.name}</div>
-                                <div class="text-xs text-slate-500">Lv.${p.level}</div>
+                                <div class="font-bold text-slate-200">${safeName}</div>
+                                <div class="text-xs text-slate-500">Lv.${safeLevel}</div>
                             </div>
                             <div class="text-right">
-                                <div class="text-amber-400 font-bold">${p.exp.toLocaleString()}</div>
+                                <div class="text-amber-400 font-bold">${safeExp}</div>
                                 <div class="text-xs text-slate-500">修为</div>
                             </div>
                         </div>
-                    `).join('')}
+                    `}).join('')}
                 </div>
             `;
         }
@@ -635,9 +656,11 @@
         window.refreshFunFact = () => {
             const fact = getRandomFunFact();
             const display = document.getElementById('fun-fact-display');
+            const safeCategory = escapeHtml(fact.category);
+            const safeFact = escapeHtml(fact.fact);
             display.innerHTML = `
-                <div class="mb-2 text-purple-400 font-bold">${fact.category}</div>
-                <div class="text-lg leading-relaxed">${fact.fact}</div>
+                <div class="mb-2 text-purple-400 font-bold">${safeCategory}</div>
+                <div class="text-lg leading-relaxed">${safeFact}</div>
             `;
         };
 
@@ -920,7 +943,9 @@
             
             console.log('🎉 数学修仙传 v6.0 - 全面功能扩展版');
             console.log('当前用户状态:', getUserState());
+            console.log('💡 运行 testRunner.runAll() 进行测试');
         };
     </script>
+    <script src="js/tests/test-suite.js"></script>
 </body>
 </html>

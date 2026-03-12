@@ -158,25 +158,42 @@ class EffectManager {
         });
     }
 
-    // 鼠标跟随粒子
+    // 鼠标跟随粒子 - 性能优化版本
     initMouseTrail() {
-        let particles = [];
-        let lastX = 0, lastY = 0;
+        this.mouseTrailParticles = [];
+        this.maxMouseTrailParticles = 20;
+        this.lastMouseX = 0;
+        this.lastMouseY = 0;
+        this.mouseTrailThrottle = 50;
+        this.lastMouseTrailTime = 0;
         
-        document.addEventListener('mousemove', (e) => {
-            const dx = e.clientX - lastX;
-            const dy = e.clientY - lastY;
+        this._mouseMoveHandler = (e) => {
+            const now = Date.now();
+            if (now - this.lastMouseTrailTime < this.mouseTrailThrottle) return;
+            
+            const dx = e.clientX - this.lastMouseX;
+            const dy = e.clientY - this.lastMouseY;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (distance > 20) {
+            if (distance > 30) {
                 this.createMouseParticle(e.clientX, e.clientY);
-                lastX = e.clientX;
-                lastY = e.clientY;
+                this.lastMouseX = e.clientX;
+                this.lastMouseY = e.clientY;
+                this.lastMouseTrailTime = now;
             }
-        });
+        };
+        
+        document.addEventListener('mousemove', this._mouseMoveHandler);
     }
 
     createMouseParticle(x, y) {
+        if (this.mouseTrailParticles.length >= this.maxMouseTrailParticles) {
+            const oldParticle = this.mouseTrailParticles.shift();
+            if (oldParticle && oldParticle.parentNode) {
+                oldParticle.remove();
+            }
+        }
+        
         const particle = document.createElement('div');
         particle.style.cssText = `
             position: fixed;
@@ -188,11 +205,21 @@ class EffectManager {
             border-radius: 50%;
             pointer-events: none;
             z-index: 9998;
-            animation: particle-fade 1s ease-out forwards;
+            animation: particle-fade 0.8s ease-out forwards;
         `;
         
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 1000);
+        this.mouseTrailParticles.push(particle);
+        
+        setTimeout(() => {
+            const index = this.mouseTrailParticles.indexOf(particle);
+            if (index > -1) {
+                this.mouseTrailParticles.splice(index, 1);
+            }
+            if (particle.parentNode) {
+                particle.remove();
+            }
+        }, 800);
     }
 
     // 升级特效
@@ -276,6 +303,21 @@ class EffectManager {
             toPage.style.opacity = '1';
             toPage.style.transform = 'translateY(0)';
         }, 300);
+    }
+
+    // 销毁管理器，清理事件监听
+    destroy() {
+        if (this._mouseMoveHandler) {
+            document.removeEventListener('mousemove', this._mouseMoveHandler);
+            this._mouseMoveHandler = null;
+        }
+        
+        if (this.mouseTrailParticles) {
+            this.mouseTrailParticles.forEach(p => {
+                if (p && p.parentNode) p.remove();
+            });
+            this.mouseTrailParticles = [];
+        }
     }
 
     // 成就解锁特效

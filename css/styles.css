@@ -403,3 +403,245 @@ body {
     opacity: 1;
     transform: translateX(-50%) translateY(-8px);
 }
+
+/* ================= 移动端适配 ================= */
+@media (max-width: 640px) {
+    .nav-container {
+        padding: 0.5rem;
+    }
+    
+    .nav-container .flex {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .nav-container .flex::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .nav-item {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+    
+    .title-main {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+    
+    .page-section {
+        padding-top: 70px;
+        padding-bottom: 40px;
+    }
+    
+    .modal-content {
+        max-width: 95%;
+        max-height: 85vh;
+        border-radius: 12px;
+    }
+    
+    .realm-card {
+        padding: 1rem;
+    }
+    
+    .realm-card h3 {
+        font-size: 1.25rem;
+    }
+    
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .hover-lift:hover {
+        transform: none;
+    }
+    
+    .realm-card:hover {
+        transform: none;
+    }
+    
+    .realm-card:hover::before {
+        opacity: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .title-main {
+        font-size: 1.75rem;
+    }
+    
+    .grid-responsive {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .nav-item {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+/* ================= 跨浏览器兼容性 ================= */
+@supports not (backdrop-filter: blur(12px)) {
+    .nav-container {
+        background: rgba(5, 10, 20, 0.95);
+    }
+    
+    .glass {
+        background: rgba(30, 41, 59, 0.9);
+    }
+}
+
+@supports not (-webkit-line-clamp: 3) {
+    .line-clamp-3 {
+        max-height: 4.5em;
+        overflow: hidden;
+    }
+}
+
+@supports not (-webkit-text-fill-color: transparent) {
+    .text-gradient {
+        color: #f59e0b;
+    }
+}
+
+/* ================= 触摸设备优化 ================= */
+@media (hover: none) and (pointer: coarse) {
+    .realm-card:hover {
+        transform: none;
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: none;
+    }
+    
+    .realm-card:active {
+        transform: scale(0.98);
+        border-color: rgba(245, 158, 11, 0.6);
+    }
+    
+    .btn-primary:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+    
+    .btn-primary:active {
+        transform: scale(0.95);
+    }
+    
+    .hover-lift:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .hover-lift:active {
+        transform: scale(0.98);
+    }
+    
+    .nav-item::after {
+        display: none;
+    }
+    
+    .nav-item.active {
+        background: rgba(245, 158, 11, 0.2);
+        border-radius: 4px;
+    }
+}
+
+/* ================= 高对比度模式 ================= */
+@media (prefers-contrast: high) {
+    .realm-card {
+        border-width: 2px;
+    }
+    
+    .btn-primary {
+        border: 2px solid #fff;
+    }
+    
+    .modal-content {
+        border-width: 2px;
+    }
+}
+
+/* ================= 减少动画模式 ================= */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .page-section {
+        transition: none;
+    }
+    
+    .realm-card {
+        transition: none;
+    }
+    
+    .realm-card:hover {
+        transform: none;
+    }
+    
+    .realm-card:hover::before {
+        animation: none;
+        opacity: 0;
+    }
+    
+    .achievement-badge::after {
+        animation: none;
+    }
+    
+    .btn-pulse {
+        animation: none;
+    }
+    
+    .skeleton {
+        animation: none;
+    }
+}
+
+/* ================= 打印样式 ================= */
+@media print {
+    #canvas-bg,
+    .nav-container,
+    .modal,
+    .btn-primary {
+        display: none !important;
+    }
+    
+    .page-section {
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+    }
+    
+    body {
+        background: #fff;
+        color: #000;
+    }
+}
+
+/* ================= 深色模式强制 ================= */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #050a14;
+        color: #e2e8f0;
+    }
+}
+
+/* ================= 安全区域适配 (iOS) ================= */
+@supports (padding: env(safe-area-inset-top)) {
+    .nav-container {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .page-section {
+        padding-bottom: calc(60px + env(safe-area-inset-bottom));
+    }
+}

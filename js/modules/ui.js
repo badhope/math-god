@@ -4,6 +4,7 @@
  */
 
 import { mathData } from '../data.js';
+import { escapeHtml, sanitizeHtml } from '../utils/security.js';
 
 const currentSection = {
     value: 'home'
@@ -73,21 +74,30 @@ function showRealmDetail(realm) {
     const modalBody = document.getElementById('modal-detail-body');
     if (!modalBody) return;
     
+    const safeName = escapeHtml(realm.name);
+    const safeTitle = escapeHtml(realm.title);
+    const safeDesc = escapeHtml(realm.desc);
+    const safeColor = escapeHtml(realm.color);
+    const safeTrivia = escapeHtml(realm.trivia);
+    
+    const safeConcepts = realm.concepts.map(c => escapeHtml(c));
+    const safeFormulas = realm.formulas.map(f => escapeHtml(f));
+    
     modalBody.innerHTML = `
         <div class="border-b border-slate-700 pb-4 mb-4">
-            <h2 class="text-3xl font-bold mb-1" style="color: ${realm.color}; font-family: 'Ma Shan Zheng', cursive;">
-                ${realm.name}
+            <h2 class="text-3xl font-bold mb-1" style="color: ${safeColor}; font-family: 'Ma Shan Zheng', cursive;">
+                ${safeName}
             </h2>
-            <span class="text-sm text-slate-400">${realm.title}</span>
+            <span class="text-sm text-slate-400">${safeTitle}</span>
         </div>
         
-        <p class="text-slate-300 leading-relaxed mb-6 text-md">${realm.desc}</p>
+        <p class="text-slate-300 leading-relaxed mb-6 text-md">${safeDesc}</p>
         
         <div class="grid md:grid-cols-2 gap-6 mb-6">
             <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700">
                 <h4 class="text-amber-400 font-bold mb-3">核心心法</h4>
                 <ul class="space-y-2">
-                    ${realm.concepts.map(c => 
+                    ${safeConcepts.map(c => 
                         `<li class="text-slate-300 text-sm flex items-center gap-2">
                             <span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>${c}
                         </li>`
@@ -98,7 +108,7 @@ function showRealmDetail(realm) {
             <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700">
                 <h4 class="text-cyan-400 font-bold mb-3">经典公式</h4>
                 <div class="space-y-3 font-mono text-sm">
-                    ${realm.formulas.map(f => 
+                    ${safeFormulas.map(f => 
                         `<div class="text-cyan-300 bg-slate-800 p-2 rounded">${f}</div>`
                     ).join('')}
                 </div>
@@ -106,7 +116,7 @@ function showRealmDetail(realm) {
         </div>
         
         <div class="mt-6 bg-amber-500/5 border-l-4 border-amber-500 p-4 rounded">
-            <p class="text-amber-400 italic text-sm">"${realm.trivia}"</p>
+            <p class="text-amber-400 italic text-sm">"${safeTrivia}"</p>
         </div>
         
         <div class="mt-6 flex justify-end gap-4">
